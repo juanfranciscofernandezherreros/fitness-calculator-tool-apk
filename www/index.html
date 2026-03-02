@@ -5,11 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>🎯 Ruta de Aprendizaje - Grammar & Vocabulary</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .logout-btn {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+    }
+    header {
+      position: relative;
+    }
+    body { visibility: hidden; }
+  </style>
 </head>
 <body>
   <header>
     <h1>🎯 Ruta de Aprendizaje</h1>
     <p>Avanza paso a paso por Gramática y Vocabulario</p>
+    <button class="btn secondary logout-btn" id="logout-btn">Cerrar sesión</button>
   </header>
 
   <main>
@@ -70,6 +82,15 @@
     <p>© 2025 Ruta educativa - Inglés Grammar & Vocabulary</p>
   </footer>
 
+  <script src="auth.js"></script>
+  <script>
+    if (!isAuthenticated()) {
+      window.location.href = 'login.html';
+    } else {
+      document.body.style.visibility = 'visible';
+    }
+    document.getElementById('logout-btn').addEventListener('click', logout);
+  </script>
   <script src="game.js"></script>
 </body>
 </html>
