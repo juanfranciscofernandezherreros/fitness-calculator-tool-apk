@@ -642,17 +642,362 @@ function updateClock() {
   if (clock) clock.textContent = h + ':' + m;
 }
 
+
+/* ══════════════════════════════════════════════════════════
+   MUSIC PLAYER – Reproduce MP3 desde servidor remoto (HTTP)
+   El servidor SSH debe exponer los archivos vía HTTP/HTTPS.
+══════════════════════════════════════════════════════════ */
+
+/* ── Music state ──────────────────────────────────────────── */
+let audioPlayer     = null;    /* HTMLAudioElement              */
+let musicVolume     = 0.8;     /* Persistent volume level (0–1) */
+let currentMusicIdx = -1;
+let isMusicPlaying  = false;
+
+/* Load saved tracks safely */
+let musicTracks = [];
+try { musicTracks = JSON.parse(localStorage.getItem('music_tracks') || '[]'); } catch { musicTracks = []; }
+
+/* ── Build MUSIC screen ───────────────────────────────────── */
+function buildMusic() {
+  const screen = $('screen-music');
+  screen.innerHTML = '';
+
+  /* Header */
+  const header = el('div', 'music-screen-header');
+  header.innerHTML = `
+    <div class="music-screen-title">🎵 Música</div>
+    <div class="music-screen-sub">Reproduce MP3 desde tu servidor remoto</div>`;
+  screen.appendChild(header);
+
+  /* Server config panel */
+  const savedUrl = escAttr(localStorage.getItem('music_server_url') || '');
+  const configPanel = el('div', 'music-config-panel');
+  configPanel.innerHTML = `
+    <div class="music-config-label">🌐 Servidor remoto (SSH / HTTP)</div>
+    <div class="music-config-hint">
+      Introduce la URL HTTP/HTTPS de tu servidor donde están alojados los
+      archivos MP3. El servidor SSH debe exponer también un servidor HTTP
+      que sirva los ficheros y un archivo <code>playlist.json</code>.
+    </div>
+    <div class="music-input-row">
+      <input type="url" id="music-server-url" class="music-url-input"
+             placeholder="https://mi-servidor.com/musica/"
+             value="${savedUrl}" autocomplete="off" />
+    </div>
+    <div class="music-btn-row">
+      <button class="music-btn-secondary" id="btn-music-connect">Cargar lista</button>
+      <button class="music-btn-secondary" id="btn-music-clear">Limpiar lista</button>
+    </div>
+    <div id="music-server-status" class="music-status"></div>
+    <div class="music-config-hint" style="margin-top:10px">
+      <strong>Formato playlist.json:</strong><br>
+      <code>[{"name":"Canción 1","url":"track1.mp3","artist":"Artista"},…]</code>
+    </div>`;
+  screen.appendChild(configPanel);
+
+  /* Manual URL panel */
+  const manualPanel = el('div', 'music-config-panel');
+  manualPanel.innerHTML = `
+    <div class="music-config-label">➕ Añadir MP3 por URL directa</div>
+    <div class="music-input-row">
+      <input type="url" id="music-manual-url" class="music-url-input"
+             placeholder="https://servidor.com/cancion.mp3" autocomplete="off" />
+    </div>
+    <div class="music-input-row">
+      <input type="text" id="music-manual-name" class="music-url-input"
+             placeholder="Nombre de la canción (opcional)" autocomplete="off" />
+    </div>
+    <div class="music-btn-row">
+      <button class="music-btn-primary" id="btn-music-add-manual">Añadir canción</button>
+    </div>`;
+  screen.appendChild(manualPanel);
+
+  /* Track list container */
+  const trackSection = el('div');
+  trackSection.id = 'music-track-section';
+  screen.appendChild(trackSection);
+  renderMusicTracks();
+
+  /* ── Event listeners ──────────────────────────────────── */
+  $('btn-music-connect').addEventListener('click', () => {
+    const url = $('music-server-url').value.trim();
+    if (!url) { showMusicStatus('Introduce una URL de servidor.', 'error'); return; }
+    localStorage.setItem('music_server_url', url);
+    loadMusicFromServer(url);
+  });
+
+  $('btn-music-clear').addEventListener('click', () => {
+    musicTracks = [];
+    localStorage.setItem('music_tracks', '[]');
+    if (audioPlayer) { stopMusicPlayer(); currentMusicIdx = -1; }
+    renderMusicTracks();
+    showMusicStatus('Lista de reproducción borrada.', 'ok');
+  });
+
+  $('btn-music-add-manual').addEventListener('click', () => {
+    const url  = $('music-manual-url').value.trim();
+    const name = $('music-manual-name').value.trim();
+    if (!url) { return; }
+    addMusicTrackManual(url, name);
+    $('music-manual-url').value  = '';
+    $('music-manual-name').value = '';
+  });
+}
+
+/* ── Load playlist from remote server ────────────────────── */
+function loadMusicFromServer(baseUrl) {
+  showMusicStatus('Conectando con el servidor…', 'loading');
+  const base     = baseUrl.replace(/\/+$/, '') + '/';
+  const jsonUrl  = base + 'playlist.json';
+
+  fetch(jsonUrl)
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      const list = Array.isArray(data) ? data : (data.tracks || []);
+      if (!list.length) throw new Error('La lista está vacía');
+      const serverTracks = list
+        .map((item, i) => ({
+          id:     'srv-' + i + '-' + Date.now(),
+          name:   item.name || item.title || extractFilename(item.url || item.file || ''),
+          url:    makeAbsoluteUrl(item.url || item.file || '', base),
+          artist: item.artist || item.author || 'Servidor remoto',
+          source: 'server',
+        }))
+        .filter(t => t.url);
+
+      /* Keep manually-added tracks */
+      const manual = musicTracks.filter(t => t.source === 'manual');
+      musicTracks  = [...serverTracks, ...manual];
+      localStorage.setItem('music_tracks', JSON.stringify(musicTracks));
+      renderMusicTracks();
+      showMusicStatus(serverTracks.length + ' canciones cargadas desde el servidor.', 'ok');
+    })
+    .catch(err => {
+      showMusicStatus(
+        'No se pudo cargar playlist.json (' + err.message + ').\n' +
+        'Asegúrate de que tu servidor HTTP sirve el archivo playlist.json ' +
+        'con cabeceras CORS (Access-Control-Allow-Origin: *).\n' +
+        'También puedes añadir canciones manualmente con la URL directa.',
+        'error'
+      );
+    });
+}
+
+/* ── Add a single track manually ─────────────────────────── */
+function addMusicTrackManual(url, name) {
+  const track = {
+    id:     'man-' + Date.now(),
+    name:   name || extractFilename(url),
+    url,
+    artist: 'Manual',
+    source: 'manual',
+  };
+  musicTracks.push(track);
+  localStorage.setItem('music_tracks', JSON.stringify(musicTracks));
+  renderMusicTracks();
+  showMusicStatus('"' + track.name + '" añadida.', 'ok');
+}
+
+/* ── Render the track list in the music screen ────────────── */
+function renderMusicTracks() {
+  const section = $('music-track-section');
+  if (!section) return;
+  section.innerHTML = '';
+
+  if (!musicTracks.length) {
+    section.innerHTML = `
+      <div class="music-empty">
+        <div style="font-size:48px;margin-bottom:12px">🎧</div>
+        <div style="font-weight:700;margin-bottom:6px;color:var(--text-primary)">Sin canciones</div>
+        <div style="font-size:13px;color:var(--text-secondary)">
+          Conecta tu servidor o añade URLs de MP3 directamente.
+        </div>
+      </div>`;
+    return;
+  }
+
+  const hdr = el('div', 'section-header');
+  hdr.innerHTML = `
+    <span class="section-title">Lista de reproducción</span>
+    <span style="font-size:12px;color:var(--text-secondary)">${musicTracks.length} canciones</span>`;
+  section.appendChild(hdr);
+
+  musicTracks.forEach((track, i) => {
+    const item      = el('div', 'track-item');
+    const isPlaying = i === currentMusicIdx;
+    item.innerHTML  = `
+      <span class="track-num ${isPlaying ? 'playing' : ''}">${isPlaying ? '♫' : i + 1}</span>
+      <div class="track-info">
+        <div class="track-name ${isPlaying ? 'playing' : ''}">${escHtml(track.name)}</div>
+        <div class="track-meta">${escHtml(track.artist)} · ${track.source === 'manual' ? 'Manual' : 'Servidor'}</div>
+      </div>
+      <button class="music-remove-btn" data-index="${i}" aria-label="Eliminar">✕</button>`;
+
+    item.addEventListener('click', e => {
+      if (e.target.classList.contains('music-remove-btn')) return;
+      playMusicTrack(i);
+    });
+    item.querySelector('.music-remove-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      const idx = Number(e.target.dataset.index);
+      musicTracks.splice(idx, 1);
+      if (currentMusicIdx === idx) {
+        stopMusicPlayer();
+        currentMusicIdx = -1;
+        closeModal('modal-music-player');
+      } else if (currentMusicIdx > idx) { currentMusicIdx--; }
+      localStorage.setItem('music_tracks', JSON.stringify(musicTracks));
+      renderMusicTracks();
+    });
+    section.appendChild(item);
+  });
+}
+
+/* ── Play a track by index ────────────────────────────────── */
+function playMusicTrack(index) {
+  if (index < 0 || index >= musicTracks.length) return;
+  currentMusicIdx = index;
+  const track     = musicTracks[index];
+
+  stopMusicPlayer();
+  audioPlayer         = new Audio(track.url);
+  audioPlayer.volume  = musicVolume;
+  audioPlayer.preload = 'metadata';
+
+  audioPlayer.addEventListener('canplay', () => {
+    audioPlayer.play().then(() => { isMusicPlaying = true; updateMusicPlayerUI(); }).catch(() => {});
+  });
+  audioPlayer.addEventListener('timeupdate', updateMusicSeek);
+  audioPlayer.addEventListener('ended', () => {
+    if (musicTracks.length > 0) playMusicTrack((currentMusicIdx + 1) % musicTracks.length);
+  });
+  audioPlayer.addEventListener('error', () => {
+    showMusicStatus(
+      'Error al cargar el audio "' + track.name + '".\n' +
+      'Comprueba la URL y que el servidor permite CORS (Access-Control-Allow-Origin: *).',
+      'error'
+    );
+  });
+
+  openMusicPlayer(track);
+  renderMusicTracks();
+}
+
+/* ── Stop/reset audio ─────────────────────────────────────── */
+function stopMusicPlayer() {
+  if (audioPlayer) {
+    audioPlayer.pause();
+    audioPlayer.src = '';
+    audioPlayer     = null;
+    isMusicPlaying  = false;
+  }
+}
+
+/* ── Open / update full-screen player modal ───────────────── */
+function openMusicPlayer(track) {
+  const modal = $('modal-music-player');
+  modal.querySelector('#mp-track-name').textContent   = track.name;
+  modal.querySelector('#mp-track-artist').textContent = track.artist || 'Servidor remoto';
+  modal.querySelector('#mp-seek').value               = 0;
+  modal.querySelector('#mp-time-cur').textContent     = '0:00';
+  modal.querySelector('#mp-time-total').textContent   = '–:––';
+  updateMusicPlayerUI();
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => modal.classList.add('open'));
+}
+
+/* ── Sync play/pause icon ─────────────────────────────────── */
+function updateMusicPlayerUI() {
+  const btn = $('mp-play-pause');
+  if (!btn) return;
+  btn.innerHTML = isMusicPlaying ? ICONS.pause : ICONS.play;
+  /* Adjust left margin for the play icon triangle */
+  const svg = btn.querySelector('svg');
+  if (svg) svg.style.marginLeft = isMusicPlaying ? '0' : '3px';
+}
+
+/* ── Update seek bar and time display ─────────────────────── */
+function updateMusicSeek() {
+  if (!audioPlayer || !audioPlayer.duration) return;
+  const pct   = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+  const seek  = $('mp-seek');
+  const cur   = $('mp-time-cur');
+  const total = $('mp-time-total');
+  if (seek)  seek.value       = pct;
+  if (cur)   cur.textContent  = formatMusicTime(audioPlayer.currentTime);
+  if (total) total.textContent = formatMusicTime(audioPlayer.duration);
+}
+
+/* ── Show a status message in the music screen ────────────── */
+function showMusicStatus(msg, type) {
+  const el = $('music-server-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className   = 'music-status music-status-' + type;
+}
+
+/* ── Format seconds → m:ss ───────────────────────────────── */
+function formatMusicTime(secs) {
+  if (!secs || isNaN(secs)) return '0:00';
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60).toString().padStart(2, '0');
+  return m + ':' + s;
+}
+
+/* ── Extract a human-readable filename from a URL ─────────── */
+function extractFilename(url) {
+  try {
+    const parts = new URL(url).pathname.split('/');
+    const filename = parts[parts.length - 1] || 'Pista desconocida';
+    return decodeURIComponent(filename.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' '));
+  } catch {
+    return url.split('/').pop().replace(/\.[^.]+$/, '') || 'Pista desconocida';
+  }
+}
+
+/* ── Resolve a possibly-relative URL against a base ──────── */
+function makeAbsoluteUrl(url, base) {
+  if (!url) return '';
+  if (/^https?:\/\//.test(url)) return url;
+  try { return new URL(url, base).href; } catch { return base.replace(/\/+$/, '') + '/' + url.replace(/^\/+/, ''); }
+}
+
+/* ── HTML-escape a string for safe innerHTML insertion ──────── */
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ── Attribute-escape (for value="…") ────────────────────── */
+function escAttr(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 /* ── Init ───────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   buildHome();
   buildSearch();
   buildLibrary();
+  buildMusic();
   updateClock();
   setInterval(updateClock, 30000);
 
   /* Back buttons */
   $('btn-back-playlist').addEventListener('click', () => closeModal('modal-playlist'));
   $('btn-back-lesson').addEventListener('click', () => closeModal('modal-lesson'));
+  $('btn-back-music').addEventListener('click', () => closeModal('modal-music-player'));
 
   /* Mini player click → reopen lesson modal */
   $('mini-player').addEventListener('click', () => {
@@ -667,5 +1012,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentPlaylist && currentPlaylist.tracks.length) {
       openLesson({ ...currentPlaylist.tracks[0], playlistIcon: currentPlaylist.icon, playlistName: currentPlaylist.name, playlistColor: currentPlaylist.color });
     }
+  });
+
+  /* Music player modal controls */
+  $('mp-play-pause').addEventListener('click', () => {
+    if (!audioPlayer) return;
+    if (isMusicPlaying) {
+      audioPlayer.pause();
+      isMusicPlaying = false;
+      updateMusicPlayerUI();
+    } else {
+      audioPlayer.play()
+        .then(() => { isMusicPlaying = true; updateMusicPlayerUI(); })
+        .catch(() => {});
+    }
+  });
+
+  $('mp-prev').addEventListener('click', () => {
+    const prev = currentMusicIdx > 0 ? currentMusicIdx - 1 : musicTracks.length - 1;
+    playMusicTrack(prev);
+  });
+
+  $('mp-next').addEventListener('click', () => {
+    playMusicTrack((currentMusicIdx + 1) % musicTracks.length);
+  });
+
+  $('mp-seek').addEventListener('input', e => {
+    if (audioPlayer && audioPlayer.duration)
+      audioPlayer.currentTime = (e.target.value / 100) * audioPlayer.duration;
+  });
+
+  $('mp-volume').addEventListener('input', e => {
+    musicVolume = e.target.value / 100;
+    if (audioPlayer) audioPlayer.volume = musicVolume;
   });
 });
