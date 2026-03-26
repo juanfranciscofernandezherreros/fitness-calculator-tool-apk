@@ -12,4 +12,10 @@
     <allow-navigation href="*" />
     <allow-intent href="*" />
     <access origin="*" />
+    <platform name="android">
+        <resource-file src="res/android/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:networkSecurityConfig="@xml/network_security_config" xmlns:android="http://schemas.android.com/apk/res/android" />
+        </edit-config>
+    </platform>
 </widget>
