@@ -7,7 +7,7 @@
     <author email="you@example.com" href="https://cordova.apache.org">
         ChatGPT
     </author>
-    <content src="spotify.html" />
+    <content src="survey.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <allow-navigation href="*" />
     <allow-intent href="*" />

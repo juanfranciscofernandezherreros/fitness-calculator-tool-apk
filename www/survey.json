@@ -1,0 +1,25 @@
+{
+  "title": "Encuesta de satisfacción",
+  "questions": [
+    {
+      "id": 1,
+      "text": "¿Cómo valorarías la experiencia general de la app?",
+      "options": ["Muy mala", "Mala", "Regular", "Buena", "Muy buena"]
+    },
+    {
+      "id": 2,
+      "text": "¿Recomendarías esta app a un amigo?",
+      "options": ["Sí, sin duda", "Probablemente sí", "No lo sé", "Probablemente no", "No"]
+    },
+    {
+      "id": 3,
+      "text": "¿Con qué frecuencia usas la app?",
+      "options": ["A diario", "Varias veces a la semana", "Una vez a la semana", "Raramente", "Es mi primera vez"]
+    },
+    {
+      "id": 4,
+      "text": "¿Qué aspecto te parece más útil?",
+      "options": ["Diseño", "Contenido", "Facilidad de uso", "Velocidad", "Ninguno en especial"]
+    }
+  ]
+}
