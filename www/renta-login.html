@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NH Gestión Integral – Iniciar sesión</title>
+  <link rel="stylesheet" href="renta-style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">NH Gestión Integral</div>
+      <nav class="header-nav">
+        <div class="lang-flags-top" id="lang-flags" role="group" aria-label="Idioma"></div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="info-box">
+      <strong id="loginInfoTitle">Acceso al Portal</strong>
+      <span id="loginInfoText">Introduzca su DNI/NIE y contraseña para acceder a su declaración.</span>
+      <br /><br />
+      <strong id="loginTestUsers">Usuarios de prueba</strong>
+      <ul>
+        <li><strong>12345678A</strong> – María García López</li>
+        <li><strong>87654321B</strong> – Carlos Martínez Ruiz</li>
+        <li><strong>11223344C</strong> – Ana López Sánchez</li>
+        <li><strong>44332211D</strong> – Pedro Fernández González</li>
+      </ul>
+      <span id="loginTestPassword">Contraseña de prueba: </span><strong>renta2025</strong>
+    </div>
+
+    <div id="error-box" class="info-box info-box-error" style="display:none;"></div>
+
+    <form id="login-form" novalidate>
+      <div class="section-title" id="loginSectionId">Identificación</div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="dniNie" id="lbl-dni">DNI / NIE</label>
+          <input type="text" id="dniNie" name="dniNie" placeholder="00000000A" maxlength="9" required autocomplete="username" />
+          <span class="field-error" id="err-dni" style="display:none;"></span>
+        </div>
+        <div class="field">
+          <label for="password" id="lbl-pass">Contraseña</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+          <span class="field-error" id="err-pass" style="display:none;"></span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="btn-submit">Iniciar sesión</button>
+        <a href="renta-token.html" class="btn btn-secondary">Consultar por token</a>
+        <a href="renta-form.html" class="btn btn-secondary">Nuevo formulario</a>
+      </div>
+    </form>
+  </div>
+
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <p class="footer-brand-name">NH Gestión Integral</p>
+      <p class="footer-disclaimer">Este formulario es meramente informativo y no constituye una presentación oficial ante la NH Gestión Integral.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="renta-api.js"></script>
+  <script src="renta-auth.js"></script>
+  <script>
+    // Redirect if already logged in
+    if (rentaIsAuthenticated()) {
+      window.location.href = 'renta-perfil.html';
+    }
+
+    const DNI_NIE_REGEX = /^[0-9XYZ][0-9]{7}[A-Z]$/;
+
+    // ── Language UI ────────────────────────────────────────────────────────
+    function renderLangFlags() {
+      const container = document.getElementById('lang-flags');
+      const langs = rentaAvailableLanguages();
+      const current = rentaGetLang();
+      container.innerHTML = langs.map(l => {
+        const flag = RENTA_LANG_FLAGS[l.code] || '🌐';
+        return `<button type="button" class="lang-flag-btn${l.code === current ? ' active' : ''}"
+          data-code="${l.code}" title="${l.label}" aria-label="${l.label}">
+          <span class="lang-flag-emoji">${flag}</span>
+          <span class="lang-flag-code">${l.code.toUpperCase()}</span>
+        </button>`;
+      }).join('');
+      container.querySelectorAll('.lang-flag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          rentaSetLang(btn.dataset.code);
+          renderLangFlags();
+        });
+      });
+    }
+
+    // ── Toast ──────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'error') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    // ── Form submission ────────────────────────────────────────────────────
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const dniNie = document.getElementById('dniNie').value.trim().toUpperCase();
+      const password = document.getElementById('password').value;
+
+      // Clear errors
+      document.getElementById('err-dni').style.display = 'none';
+      document.getElementById('err-pass').style.display = 'none';
+      document.getElementById('error-box').style.display = 'none';
+
+      let valid = true;
+      if (!DNI_NIE_REGEX.test(dniNie)) {
+        const el = document.getElementById('err-dni');
+        el.textContent = 'Formato de DNI/NIE inválido (ej: 12345678A)';
+        el.style.display = 'block';
+        document.getElementById('dniNie').classList.add('is-invalid');
+        valid = false;
+      } else {
+        document.getElementById('dniNie').classList.remove('is-invalid');
+      }
+      if (!password) {
+        const el = document.getElementById('err-pass');
+        el.textContent = 'La contraseña es obligatoria';
+        el.style.display = 'block';
+        document.getElementById('password').classList.add('is-invalid');
+        valid = false;
+      } else {
+        document.getElementById('password').classList.remove('is-invalid');
+      }
+      if (!valid) return;
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'Iniciando sesión…';
+
+      const { data, error } = await rentaApiLogin({ dniNie, password });
+      btn.disabled = false;
+      btn.textContent = 'Iniciar sesión';
+
+      if (error || !data) {
+        const errBox = document.getElementById('error-box');
+        errBox.textContent = '❌ ' + (error?.message || 'Error al iniciar sesión');
+        errBox.style.display = 'block';
+        return;
+      }
+
+      rentaLogin({ dniNie: data.dniNie || dniNie, role: data.role || 'user' });
+      window.location.href = 'renta-perfil.html';
+    });
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    rentaLoadTranslations().then(renderLangFlags);
+  </script>
+
+</body>
+</html>

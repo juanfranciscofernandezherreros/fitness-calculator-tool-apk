@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NH Gestión Integral – Mi Perfil</title>
+  <link rel="stylesheet" href="renta-style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">NH Gestión Integral</div>
+      <nav class="header-nav">
+        <div class="lang-flags-top" id="lang-flags" role="group" aria-label="Idioma"></div>
+        <a href="renta-form.html" class="btn btn-secondary btn-sm">Nuevo formulario</a>
+        <a href="renta-token.html" class="btn btn-secondary btn-sm">Consultar token</a>
+        <span id="nav-admin" style="display:none;">
+          <a href="renta-admin.html" class="btn btn-secondary btn-sm">🛡️ Admin</a>
+        </span>
+        <button type="button" class="btn btn-danger btn-sm" id="btn-logout">Cerrar sesión</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Profile info -->
+  <div class="card">
+    <div class="profile-header">
+      <div class="profile-avatar">👤</div>
+      <div>
+        <div class="profile-name" id="profile-dni">—</div>
+      </div>
+    </div>
+
+    <div class="section-title">Mis declaraciones</div>
+
+    <div id="decl-loading" class="info-box">Cargando declaraciones…</div>
+    <div id="decl-error" class="info-box info-box-error" style="display:none;"></div>
+    <div id="decl-empty" class="info-box" style="display:none;">
+      <strong>No tiene declaraciones todavía.</strong>
+      <br />Puede <a href="renta-form.html" style="color:#6c11c8; font-weight:700;">rellenar el formulario</a> para enviar su primera declaración.
+    </div>
+
+    <div class="declaraciones-list" id="decl-list" style="display:none;"></div>
+  </div>
+
+  <!-- Change password -->
+  <div class="card">
+    <div class="section-title">Cambiar contraseña</div>
+    <div id="pw-success" class="info-box" style="display:none;">Contraseña actualizada correctamente.</div>
+    <div id="pw-error" class="info-box info-box-error" style="display:none;"></div>
+    <form id="pw-form" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label>Contraseña actual</label>
+          <input type="password" id="old-password" name="oldPassword" required autocomplete="current-password" />
+          <span class="field-error" id="fe-old-password" style="display:none;"></span>
+        </div>
+        <div class="field">
+          <label>Nueva contraseña</label>
+          <input type="password" id="new-password" name="newPassword" required autocomplete="new-password" />
+          <span class="field-error" id="fe-new-password" style="display:none;"></span>
+        </div>
+        <div class="field">
+          <label>Confirmar contraseña</label>
+          <input type="password" id="confirm-password" name="confirmPassword" required autocomplete="new-password" />
+          <span class="field-error" id="fe-confirm-password" style="display:none;"></span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="btn-pw-submit">Actualizar contraseña</button>
+      </div>
+    </form>
+  </div>
+
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <p class="footer-brand-name">NH Gestión Integral</p>
+      <p class="footer-disclaimer">Este formulario es meramente informativo y no constituye una presentación oficial ante la NH Gestión Integral.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="renta-api.js"></script>
+  <script src="renta-auth.js"></script>
+  <script>
+  (function () {
+    // Guard
+    rentaRequireAuth();
+    const user = rentaGetUser();
+
+    const ESTADO_LABELS = {
+      recibido: 'Recibido',
+      en_revision: 'En revisión',
+      documentacion_pendiente: 'Documentación pendiente',
+      completado: 'Completado',
+      archivado: 'Archivado',
+    };
+    const ESTADO_CLASS = {
+      recibido: 'badge-blue',
+      en_revision: 'badge-yellow',
+      documentacion_pendiente: 'badge-orange',
+      completado: 'badge-green',
+      archivado: 'badge-gray',
+    };
+    const ID_CAMPOS_LABELS = {
+      nombre: 'Nombre', apellidos: 'Apellidos', dniNie: 'DNI / NIE',
+      email: 'Correo electrónico', telefono: 'Teléfono',
+    };
+    const ID_CAMPOS = ['nombre', 'apellidos', 'dniNie', 'email', 'telefono'];
+    const YN_LABELS = { si: 'Sí', no: 'No' };
+
+    let secciones = [];
+    let expanded = null;
+
+    // ── Profile header ─────────────────────────────────────────────────────
+    document.getElementById('profile-dni').textContent = user.dniNie || '—';
+    if (user.role === 'admin') document.getElementById('nav-admin').style.display = '';
+
+    // ── Language UI ────────────────────────────────────────────────────────
+    function renderLangFlags() {
+      const container = document.getElementById('lang-flags');
+      const langs = rentaAvailableLanguages();
+      const current = rentaGetLang();
+      container.innerHTML = langs.map(l => {
+        const flag = RENTA_LANG_FLAGS[l.code] || '🌐';
+        return `<button type="button" class="lang-flag-btn${l.code === current ? ' active' : ''}"
+          data-code="${l.code}" title="${l.label}" aria-label="${l.label}">
+          <span class="lang-flag-emoji">${flag}</span>
+          <span class="lang-flag-code">${l.code.toUpperCase()}</span>
+        </button>`;
+      }).join('');
+      container.querySelectorAll('.lang-flag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          rentaSetLang(btn.dataset.code);
+          renderLangFlags();
+        });
+      });
+    }
+
+    // ── Toast ──────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    // ── Format date ────────────────────────────────────────────────────────
+    function formatFecha(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    // ── HTML escape ────────────────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Render declarations ────────────────────────────────────────────────
+    function renderDeclaraciones(declaraciones) {
+      const lang = rentaGetLang();
+      document.getElementById('decl-loading').style.display = 'none';
+      if (!declaraciones.length) {
+        document.getElementById('decl-empty').style.display = 'block';
+        return;
+      }
+      const list = document.getElementById('decl-list');
+      list.style.display = 'flex';
+      list.innerHTML = declaraciones.map(dec => {
+        const badgeClass = ESTADO_CLASS[dec.estado] || 'badge-blue';
+        const estadoLabel = ESTADO_LABELS[dec.estado] || dec.estado;
+        return `
+          <div class="declaracion-card" data-id="${escHtml(dec.id)}">
+            <div class="declaracion-header" role="button" tabindex="0">
+              <div class="declaracion-meta">
+                <span class="declaracion-id">#${escHtml(dec.id.slice(0, 8))}…</span>
+                <span class="estado-badge ${badgeClass}">${escHtml(estadoLabel)}</span>
+              </div>
+              <div class="declaracion-dates">
+                <span>Enviado: ${formatFecha(dec.creadoEn)}</span>
+                ${dec.actualizadoEn && dec.actualizadoEn !== dec.creadoEn ? `<span>Actualizado: ${formatFecha(dec.actualizadoEn)}</span>` : ''}
+              </div>
+              <div class="declaracion-toggle">▼</div>
+            </div>
+            <div class="declaracion-body" id="body-${escHtml(dec.id)}">
+              ${renderDeclaracionBody(dec, lang)}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Toggle expand
+      list.querySelectorAll('.declaracion-header').forEach(hdr => {
+        hdr.addEventListener('click', () => {
+          const id = hdr.closest('.declaracion-card').dataset.id;
+          const body = document.getElementById(`body-${id}`);
+          const toggle = hdr.querySelector('.declaracion-toggle');
+          const isOpen = body.classList.toggle('open');
+          toggle.textContent = isOpen ? '▲' : '▼';
+          expanded = isOpen ? id : null;
+        });
+        hdr.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hdr.click(); }
+        });
+      });
+
+      // Edit buttons
+      list.querySelectorAll('.btn-edit-dec').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const dec = declaraciones.find(d => d.id === id);
+          if (dec) {
+            localStorage.setItem('renta_edit_dec', JSON.stringify(dec));
+            window.location.href = 'renta-form.html';
+          }
+        });
+      });
+    }
+
+    function renderDeclaracionBody(dec, lang) {
+      const idRows = ID_CAMPOS.map(campo => {
+        const val = dec[campo];
+        if (val === undefined || val === null || val === '') return '';
+        return `<tr><td class="campo-label">${escHtml(ID_CAMPOS_LABELS[campo] || campo)}</td>
+                    <td class="campo-valor">${escHtml(val)}</td></tr>`;
+      }).join('');
+
+      const seccionRows = secciones.map(seccion => {
+        const preguntas = (seccion.preguntas || []).filter(p => dec[p.id] !== undefined && dec[p.id] !== null && dec[p.id] !== '');
+        if (!preguntas.length) return '';
+        const titulo = (seccion.titulos && seccion.titulos[lang]) ? seccion.titulos[lang] : (seccion.titulo || '');
+        const rows = preguntas.map(p => {
+          const label = (p.textos && p.textos[lang]) ? p.textos[lang] : p.texto;
+          const val = YN_LABELS[dec[p.id]] || dec[p.id];
+          return `<tr><td class="campo-label">${escHtml(label || p.id)}</td>
+                      <td class="campo-valor">${escHtml(val)}</td></tr>`;
+        }).join('');
+        return `<div class="section-title">${escHtml(titulo)}</div>
+                <table class="respuestas-table"><tbody>${rows}</tbody></table>`;
+      }).join('');
+
+      const editBtn = dec.estado === 'completado'
+        ? `<span class="info-box" style="margin:0;display:inline-block;">La declaración está completada y no puede modificarse.</span>`
+        : `<button type="button" class="btn btn-primary btn-sm btn-edit-dec" data-id="${escHtml(dec.id)}">✏️ Editar</button>`;
+
+      return `
+        <div class="section-title">Identificación</div>
+        <table class="respuestas-table"><tbody>${idRows}</tbody></table>
+        ${seccionRows}
+        <div class="btn-row" style="margin-top:16px;">
+          ${editBtn}
+        </div>
+      `;
+    }
+
+    // ── Logout ─────────────────────────────────────────────────────────────
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      rentaLogout();
+      window.location.href = 'renta-login.html';
+    });
+
+    // ── Change password ────────────────────────────────────────────────────
+    document.getElementById('pw-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const oldPassword = document.getElementById('old-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      // Clear errors
+      ['old-password', 'new-password', 'confirm-password'].forEach(id => {
+        document.getElementById(`fe-${id}`).style.display = 'none';
+        document.getElementById(id).classList.remove('is-invalid');
+      });
+      document.getElementById('pw-error').style.display = 'none';
+      document.getElementById('pw-success').style.display = 'none';
+
+      let valid = true;
+      if (!oldPassword) {
+        setFieldErr('old-password', 'Introduce la contraseña actual'); valid = false;
+      }
+      if (!newPassword || newPassword.length < 6) {
+        setFieldErr('new-password', 'La contraseña debe tener al menos 6 caracteres'); valid = false;
+      }
+      if (newPassword !== confirmPassword) {
+        setFieldErr('confirm-password', 'Las contraseñas no coinciden'); valid = false;
+      }
+      if (!valid) return;
+
+      const btn = document.getElementById('btn-pw-submit');
+      btn.disabled = true;
+      btn.textContent = 'Actualizando…';
+
+      const { error } = await rentaApiChangePassword({ dniNie: user.dniNie, oldPassword, newPassword });
+      btn.disabled = false;
+      btn.textContent = 'Actualizar contraseña';
+
+      if (error) {
+        document.getElementById('pw-error').textContent = '❌ ' + error.message;
+        document.getElementById('pw-error').style.display = 'block';
+        return;
+      }
+      document.getElementById('pw-form').reset();
+      document.getElementById('pw-success').style.display = 'block';
+      showToast('Contraseña actualizada correctamente.');
+    });
+
+    function setFieldErr(id, msg) {
+      const el = document.getElementById(`fe-${id}`);
+      el.textContent = msg;
+      el.style.display = 'block';
+      document.getElementById(id).classList.add('is-invalid');
+    }
+
+    // ── Load data ──────────────────────────────────────────────────────────
+    Promise.all([
+      rentaApiListDeclaraciones({ dniNie: user.dniNie, limit: 10 }),
+      rentaApiGetPreguntas(),
+      rentaLoadTranslations(),
+    ]).then(([{ data, error }, { data: pData }]) => {
+      renderLangFlags();
+      if (error) {
+        document.getElementById('decl-loading').style.display = 'none';
+        document.getElementById('decl-error').textContent = '❌ Error al cargar: ' + error.message;
+        document.getElementById('decl-error').style.display = 'block';
+        return;
+      }
+      secciones = pData?.secciones || [];
+      renderDeclaraciones(data?.data || []);
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
