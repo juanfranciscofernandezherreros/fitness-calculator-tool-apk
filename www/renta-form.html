@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NH Gestión Integral – Formulario IRPF</title>
+  <link rel="stylesheet" href="renta-style.css" />
+</head>
+<body>
+
+  <header id="page-header">
+    <div class="header-inner">
+      <div class="logo">NH Gestión Integral</div>
+      <nav class="header-nav">
+        <div class="lang-flags-top" id="lang-flags" role="group" aria-label="Idioma"></div>
+        <a href="renta-login.html" class="btn btn-secondary btn-sm" id="nav-login">Iniciar sesión</a>
+        <a href="renta-perfil.html" class="btn btn-secondary btn-sm" id="nav-perfil" style="display:none;">Mi perfil</a>
+        <a href="renta-token.html" class="btn btn-secondary btn-sm" id="nav-token">Consultar token</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Loading state -->
+  <div class="card" id="loading-card">
+    <div class="info-box">Cargando preguntas…</div>
+  </div>
+
+  <!-- Error state -->
+  <div class="card" id="error-card" style="display:none;">
+    <div class="info-box info-box-error" id="error-msg"></div>
+  </div>
+
+  <!-- Main form card (shown after questions load) -->
+  <div class="card" id="form-card" style="display:none;">
+
+    <!-- Progress bar (hidden on success) -->
+    <div class="quiz-progress-header" id="progress-header">
+      <div class="quiz-progress-top">
+        <div class="quiz-counter" id="step-counter">1 <span>/ ?</span></div>
+      </div>
+      <div class="quiz-linear-bar-wrap">
+        <div class="quiz-linear-bar" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Success panel (shown after submit) -->
+    <div id="success-panel" style="display:none;" class="success-panel">
+      <div class="success-icon">✅</div>
+      <h2>¡Formulario enviado!</h2>
+      <p>Hemos recibido su declaración. Puede consultar el estado con su token personal.</p>
+      <div class="token-display" id="token-display" style="display:none;">
+        <span class="token-value" id="token-value"></span>
+        <button type="button" class="token-copy-btn" id="token-copy">Copiar</button>
+      </div>
+      <div class="btn-row" style="justify-content:center;">
+        <button type="button" class="btn btn-secondary" id="btn-another">Enviar otro formulario</button>
+        <a href="renta-token.html" class="btn btn-primary">Consultar estado</a>
+      </div>
+    </div>
+
+    <!-- Wizard form -->
+    <form id="wizard-form" novalidate style="display:none;">
+
+      <!-- Step content (animated) -->
+      <div id="wizard-step" class="wizard-step"></div>
+
+      <!-- Error banner -->
+      <div class="form-error-banner" id="form-error" style="display:none;">
+        <span id="form-error-msg"></span>
+        <button type="button" class="form-error-dismiss" id="btn-dismiss-error">×</button>
+      </div>
+
+      <!-- Navigation -->
+      <div class="wizard-nav">
+        <div>
+          <button type="button" class="btn btn-secondary" id="btn-back" style="display:none;">← Atrás</button>
+          <button type="button" class="btn btn-secondary" id="btn-clear">Limpiar</button>
+        </div>
+        <div class="wizard-progress-text" id="nav-counter"></div>
+        <div class="wizard-nav-right">
+          <button type="button" class="btn btn-primary" id="btn-next">Continuar →</button>
+          <button type="submit" class="btn btn-success" id="btn-submit" style="display:none;">Enviar declaración</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <p class="footer-brand-name">NH Gestión Integral</p>
+      <p class="footer-disclaimer">Este formulario es meramente informativo y no constituye una presentación oficial ante la NH Gestión Integral.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="renta-api.js"></script>
+  <script src="renta-auth.js"></script>
+  <script>
+  (function () {
+    // ── Conditional question dependencies ────────────────────────────────
+    const CONDITIONAL_QUESTIONS = {
+      alquilerMenos35:    { dependeDe: 'viviendaAlquiler',  valor: 'si' },
+      propiedadAntes2013: { dependeDe: 'viviendaPropiedad', valor: 'si' },
+      mayoresConviven:    { dependeDe: 'mayores65ACargo',   valor: 'si' },
+    };
+
+    // State
+    let secciones = [];
+    let visibleSteps = [];
+    let currentStep = 0;
+    let stepDirection = 'forward';
+    let editId = null;
+    let form = {
+      nombre: '', apellidos: '', dniNie: '', email: '', telefono: '',
+      viviendaAlquiler: '', alquilerMenos35: '', viviendaPropiedad: '',
+      propiedadAntes2013: '', pisosAlquiladosTerceros: '', segundaResidencia: '',
+      familiaNumerosa: '', ayudasGobierno: '', mayores65ACargo: '', mayoresConviven: '',
+      hijosMenores26: '', ingresosJuego: '', ingresosInversiones: '',
+    };
+
+    // ── Nav links ──────────────────────────────────────────────────────────
+    const user = rentaGetUser();
+    if (user) {
+      document.getElementById('nav-perfil').style.display = '';
+      document.getElementById('nav-login').style.display = 'none';
+    }
+
+    // ── Language UI ────────────────────────────────────────────────────────
+    function renderLangFlags() {
+      const container = document.getElementById('lang-flags');
+      const langs = rentaAvailableLanguages();
+      const current = rentaGetLang();
+      container.innerHTML = langs.map(l => {
+        const flag = RENTA_LANG_FLAGS[l.code] || '🌐';
+        return `<button type="button" class="lang-flag-btn${l.code === current ? ' active' : ''}"
+          data-code="${l.code}" title="${l.label}" aria-label="${l.label}">
+          <span class="lang-flag-emoji">${flag}</span>
+          <span class="lang-flag-code">${l.code.toUpperCase()}</span>
+        </button>`;
+      }).join('');
+      container.querySelectorAll('.lang-flag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          rentaSetLang(btn.dataset.code);
+          renderLangFlags();
+          renderStep();
+        });
+      });
+    }
+
+    // ── Toast ──────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 5000);
+    }
+
+    // ── Build visible steps list ───────────────────────────────────────────
+    function buildVisibleSteps() {
+      const steps = [{ type: 'id', key: 'id' }];
+      for (const seccion of secciones) {
+        for (const pregunta of (seccion.preguntas || [])) {
+          const cond = CONDITIONAL_QUESTIONS[pregunta.id];
+          if (cond && form[cond.dependeDe] !== cond.valor) continue;
+          steps.push({ type: 'question', key: `q:${pregunta.id}`, seccion, pregunta });
+        }
+      }
+      return steps;
+    }
+
+    // ── Render a step ──────────────────────────────────────────────────────
+    function renderStep() {
+      visibleSteps = buildVisibleSteps();
+      const total = visibleSteps.length;
+      const safe = Math.min(currentStep, Math.max(0, total - 1));
+      const info = visibleSteps[safe];
+      const lang = rentaGetLang();
+
+      // progress
+      const pct = total > 0 ? Math.round(((safe + 1) / total) * 100) : 0;
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('step-counter').innerHTML = `${safe + 1} <span>/ ${total}</span>`;
+      document.getElementById('nav-counter').textContent = `${safe + 1} / ${total}`;
+
+      // nav buttons
+      document.getElementById('btn-back').style.display = safe > 0 ? '' : 'none';
+      document.getElementById('btn-clear').style.display = safe === 0 ? '' : 'none';
+      if (safe < total - 1) {
+        document.getElementById('btn-next').style.display = '';
+        document.getElementById('btn-submit').style.display = 'none';
+      } else {
+        document.getElementById('btn-next').style.display = 'none';
+        document.getElementById('btn-submit').style.display = '';
+      }
+
+      // render step content
+      const container = document.getElementById('wizard-step');
+      container.className = `wizard-step${stepDirection === 'backward' ? ' reverse' : ''}`;
+      // Force reflow to re-trigger animation
+      void container.offsetWidth;
+      container.className = `wizard-step${stepDirection === 'backward' ? ' reverse' : ''}`;
+
+      if (info.type === 'id') {
+        container.innerHTML = `
+          <div class="info-box">
+            <strong>Instrucciones</strong>
+            Rellene el siguiente formulario con sus datos para la campaña de la renta.
+            Sus datos serán tratados de forma confidencial.
+          </div>
+          <div class="wizard-step-header">
+            <div class="wizard-step-icon">👤</div>
+            <div>
+              <div class="wizard-step-title">Datos de identificación</div>
+              <div class="wizard-step-subtitle">Información personal</div>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label>Nombre</label>
+              <input type="text" id="f-nombre" value="${escHtml(form.nombre)}" placeholder="Nombre" />
+              <span class="field-error" id="fe-nombre" style="display:none;"></span>
+            </div>
+            <div class="field">
+              <label>Apellidos</label>
+              <input type="text" id="f-apellidos" value="${escHtml(form.apellidos)}" placeholder="Apellido Apellido" />
+              <span class="field-error" id="fe-apellidos" style="display:none;"></span>
+            </div>
+            <div class="field">
+              <label>DNI / NIE</label>
+              <input type="text" id="f-dniNie" value="${escHtml(form.dniNie)}" placeholder="00000000A" maxlength="9" />
+              <span class="field-error" id="fe-dniNie" style="display:none;"></span>
+            </div>
+            <div class="field">
+              <label>Correo electrónico <span class="field-optional">(opcional)</span></label>
+              <input type="email" id="f-email" value="${escHtml(form.email)}" placeholder="correo@ejemplo.com" />
+            </div>
+            <div class="field">
+              <label>Teléfono</label>
+              <input type="tel" id="f-telefono" value="${escHtml(form.telefono)}" placeholder="600 000 000" />
+              <span class="field-error" id="fe-telefono" style="display:none;"></span>
+            </div>
+          </div>
+        `;
+        // Bind live changes
+        ['nombre', 'apellidos', 'dniNie', 'email', 'telefono'].forEach(field => {
+          const el = document.getElementById(`f-${field}`);
+          if (el) el.addEventListener('input', () => { form[field] = el.value; });
+        });
+      } else if (info.type === 'question') {
+        const { pregunta } = info;
+        const label = (pregunta.textos && pregunta.textos[lang]) ? pregunta.textos[lang] : (pregunta.texto || pregunta.id);
+        const val = form[pregunta.id] || '';
+        container.innerHTML = `
+          <div class="quiz-single-question">
+            <div class="question-card${val ? ' answered' : ''}">
+              <div class="question-card-text">${escHtml(label)}</div>
+              <div class="yesno-buttons">
+                <button type="button" class="yesno-btn${val === 'si' ? ' selected yes' : ''}"
+                  id="btn-si" data-field="${pregunta.id}" data-value="si">
+                  <span class="yesno-icon">✅</span> Sí
+                </button>
+                <button type="button" class="yesno-btn${val === 'no' ? ' selected no' : ''}"
+                  id="btn-no" data-field="${pregunta.id}" data-value="no">
+                  <span class="yesno-icon">❌</span> No
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        container.querySelectorAll('.yesno-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const field = btn.dataset.field;
+            const value = btn.dataset.value;
+            const isNew = form[field] !== value;
+            form[field] = value;
+            if (isNew) {
+              // Auto-advance
+              setTimeout(() => {
+                stepDirection = 'forward';
+                currentStep = safe + 1;
+                if (currentStep < visibleSteps.length) {
+                  renderStep();
+                } else {
+                  renderStep();
+                }
+              }, 250);
+            }
+            renderStep();
+          });
+        });
+      }
+    }
+
+    // ── Validation ─────────────────────────────────────────────────────────
+    function validateIdStep() {
+      let ok = true;
+      ['nombre', 'apellidos', 'dniNie', 'telefono'].forEach(field => {
+        const el = document.getElementById(`f-${field}`);
+        const err = document.getElementById(`fe-${field}`);
+        if (el) form[field] = el.value.trim();
+        if (!form[field]) {
+          if (err) { err.textContent = 'Campo obligatorio'; err.style.display = 'block'; }
+          if (el) el.classList.add('is-invalid');
+          ok = false;
+        } else {
+          if (err) err.style.display = 'none';
+          if (el) el.classList.remove('is-invalid');
+        }
+      });
+      return ok;
+    }
+
+    function showFormError(msg) {
+      const box = document.getElementById('form-error');
+      document.getElementById('form-error-msg').textContent = msg;
+      box.style.display = 'flex';
+    }
+
+    function hideFormError() {
+      document.getElementById('form-error').style.display = 'none';
+    }
+
+    // ── Navigation handlers ────────────────────────────────────────────────
+    document.getElementById('btn-next').addEventListener('click', () => {
+      visibleSteps = buildVisibleSteps();
+      const safe = Math.min(currentStep, Math.max(0, visibleSteps.length - 1));
+      const info = visibleSteps[safe];
+      if (info.type === 'id') {
+        // Sync field values
+        ['nombre', 'apellidos', 'dniNie', 'email', 'telefono'].forEach(field => {
+          const el = document.getElementById(`f-${field}`);
+          if (el) form[field] = el.value;
+        });
+        if (!validateIdStep()) {
+          shakeStep();
+          return;
+        }
+      } else if (info.type === 'question') {
+        if (!form[info.pregunta.id]) {
+          showFormError('Por favor, responda la pregunta antes de continuar.');
+          shakeStep();
+          return;
+        }
+      }
+      hideFormError();
+      stepDirection = 'forward';
+      currentStep = safe + 1;
+      renderStep();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-back').addEventListener('click', () => {
+      stepDirection = 'backward';
+      currentStep = Math.max(0, currentStep - 1);
+      hideFormError();
+      renderStep();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      if (confirm('¿Desea limpiar el formulario?')) {
+        Object.keys(form).forEach(k => { form[k] = ''; });
+        editId = null;
+        currentStep = 0;
+        stepDirection = 'forward';
+        hideFormError();
+        renderStep();
+      }
+    });
+
+    document.getElementById('btn-dismiss-error').addEventListener('click', hideFormError);
+
+    document.getElementById('btn-another').addEventListener('click', () => {
+      Object.keys(form).forEach(k => { form[k] = ''; });
+      editId = null;
+      currentStep = 0;
+      stepDirection = 'forward';
+      document.getElementById('success-panel').style.display = 'none';
+      document.getElementById('wizard-form').style.display = '';
+      document.getElementById('progress-header').style.display = '';
+      renderStep();
+    });
+
+    // ── Submit ─────────────────────────────────────────────────────────────
+    document.getElementById('wizard-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideFormError();
+
+      // Sync ID fields in case user hasn't changed focus
+      ['nombre', 'apellidos', 'dniNie', 'email', 'telefono'].forEach(field => {
+        const el = document.getElementById(`f-${field}`);
+        if (el) form[field] = el.value;
+      });
+
+      if (!form.nombre.trim() || !form.apellidos.trim() || !form.dniNie.trim() || !form.telefono.trim()) {
+        showFormError('Por favor, complete todos los campos obligatorios.');
+        return;
+      }
+
+      visibleSteps = buildVisibleSteps();
+      const unanswered = visibleSteps.filter(s => s.type === 'question').some(s => !form[s.pregunta.id]);
+      if (unanswered) {
+        showFormError('Por favor, responda todas las preguntas antes de enviar.');
+        return;
+      }
+
+      const body = buildBody();
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+
+      let result;
+      if (editId) {
+        result = await rentaApiUpdateDeclaracion(editId, body);
+      } else {
+        result = await rentaApiCreateDeclaracion(body);
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Enviar declaración';
+
+      if (result.error || !result.data) {
+        showFormError('Error al enviar: ' + (result.error?.message || 'Error desconocido'));
+        return;
+      }
+
+      // Save token to history
+      const dec = result.data;
+      if (dec.id) {
+        try {
+          const hist = JSON.parse(localStorage.getItem(RENTA_TOKENS_KEY) || '[]');
+          if (!hist.find(h => h.id === dec.id)) {
+            hist.unshift({ id: dec.id, dniNie: form.dniNie, creadoEn: dec.creadoEn });
+            localStorage.setItem(RENTA_TOKENS_KEY, JSON.stringify(hist.slice(0, 20)));
+          }
+        } catch { /* ignore */ }
+        const tvEl = document.getElementById('token-value');
+        tvEl.textContent = dec.id;
+        document.getElementById('token-display').style.display = 'flex';
+      }
+
+      editId = null;
+      document.getElementById('wizard-form').style.display = 'none';
+      document.getElementById('progress-header').style.display = 'none';
+      document.getElementById('success-panel').style.display = 'block';
+      showToast('¡Declaración enviada con éxito!');
+    });
+
+    // Token copy
+    document.getElementById('token-copy').addEventListener('click', () => {
+      const val = document.getElementById('token-value').textContent;
+      navigator.clipboard.writeText(val).then(() => {
+        document.getElementById('token-copy').textContent = '¡Copiado!';
+        setTimeout(() => { document.getElementById('token-copy').textContent = 'Copiar'; }, 2000);
+      }).catch(() => {});
+    });
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+    function buildBody() {
+      return {
+        nombre: form.nombre,
+        apellidos: form.apellidos,
+        dniNie: form.dniNie,
+        email: form.email,
+        telefono: form.telefono,
+        viviendaAlquiler: form.viviendaAlquiler,
+        ...(form.viviendaAlquiler === 'si' && { alquilerMenos35: form.alquilerMenos35 }),
+        viviendaPropiedad: form.viviendaPropiedad,
+        ...(form.viviendaPropiedad === 'si' && { propiedadAntes2013: form.propiedadAntes2013 }),
+        pisosAlquiladosTerceros: form.pisosAlquiladosTerceros,
+        segundaResidencia: form.segundaResidencia,
+        familiaNumerosa: form.familiaNumerosa,
+        ayudasGobierno: form.ayudasGobierno,
+        mayores65ACargo: form.mayores65ACargo,
+        ...(form.mayores65ACargo === 'si' && { mayoresConviven: form.mayoresConviven }),
+        hijosMenores26: form.hijosMenores26,
+        ingresosJuego: form.ingresosJuego,
+        ingresosInversiones: form.ingresosInversiones,
+      };
+    }
+
+    function shakeStep() {
+      const el = document.getElementById('wizard-step');
+      el.classList.remove('shake');
+      void el.offsetWidth;
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 600);
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Check for edit data passed via localStorage ────────────────────────
+    try {
+      const editRaw = localStorage.getItem('renta_edit_dec');
+      if (editRaw) {
+        const dec = JSON.parse(editRaw);
+        localStorage.removeItem('renta_edit_dec');
+        editId = dec.id;
+        Object.keys(form).forEach(k => { if (dec[k] !== undefined) form[k] = dec[k]; });
+      }
+    } catch { /* ignore */ }
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    rentaLoadTranslations().then(renderLangFlags);
+
+    rentaApiGetPreguntas().then(({ data, error }) => {
+      document.getElementById('loading-card').style.display = 'none';
+      if (error || !data) {
+        document.getElementById('error-msg').textContent = 'Error al cargar las preguntas: ' + (error?.message || 'Error desconocido');
+        document.getElementById('error-card').style.display = 'block';
+        return;
+      }
+      secciones = data.secciones || [];
+      document.getElementById('form-card').style.display = 'block';
+      document.getElementById('wizard-form').style.display = '';
+      renderStep();
+    });
+
+  })();
+  </script>
+
+</body>
+</html>

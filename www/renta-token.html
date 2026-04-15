@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NH Gestión Integral – Consultar estado</title>
+  <link rel="stylesheet" href="renta-style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">NH Gestión Integral</div>
+      <nav class="header-nav">
+        <div class="lang-flags-top" id="lang-flags" role="group" aria-label="Idioma"></div>
+        <a href="renta-form.html" class="btn btn-secondary btn-sm">Nuevo formulario</a>
+        <a href="renta-login.html" class="btn btn-secondary btn-sm" id="nav-login">Iniciar sesión</a>
+        <a href="renta-perfil.html" class="btn btn-secondary btn-sm" id="nav-perfil" style="display:none;">Mi perfil</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Search card -->
+  <div class="card">
+    <div class="info-box">
+      <strong>Consulta de estado por token</strong>
+      Introduzca el token que recibió al enviar su declaración para consultar su estado actual.
+    </div>
+
+    <form id="token-form" novalidate>
+      <div id="search-error" class="info-box info-box-error" style="display:none;"></div>
+      <div class="form-grid">
+        <div class="field full">
+          <label>Token de declaración</label>
+          <input type="text" id="token-input" placeholder="Ej: 550e8400-e29b-41d4-a716-446655440000" required />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="btn-consultar">Consultar</button>
+      </div>
+    </form>
+
+    <!-- Result -->
+    <div id="result-container" style="display:none; margin-top:24px;"></div>
+  </div>
+
+  <!-- Token history -->
+  <div class="card" id="history-card" style="display:none;">
+    <div class="section-title">Mis consultas recientes</div>
+    <div class="declaraciones-list" id="history-list"></div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-history">Limpiar historial</button>
+    </div>
+  </div>
+
+  <div class="card" id="no-history-card">
+    <div class="info-box">No hay consultas recientes.</div>
+  </div>
+
+  <footer class="footer-main">
+    <div class="footer-inner">
+      <p class="footer-brand-name">NH Gestión Integral</p>
+      <p class="footer-disclaimer">Este formulario es meramente informativo y no constituye una presentación oficial ante la NH Gestión Integral.</p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="renta-api.js"></script>
+  <script src="renta-auth.js"></script>
+  <script>
+  (function () {
+    const ESTADO_LABELS = {
+      recibido: 'Recibido',
+      en_revision: 'En revisión',
+      documentacion_pendiente: 'Documentación pendiente',
+      completado: 'Completado',
+      archivado: 'Archivado',
+    };
+    const ESTADO_CLASS = {
+      recibido: 'badge-blue',
+      en_revision: 'badge-yellow',
+      documentacion_pendiente: 'badge-orange',
+      completado: 'badge-green',
+      archivado: 'badge-gray',
+    };
+
+    // ── Nav links ──────────────────────────────────────────────────────────
+    if (rentaIsAuthenticated()) {
+      document.getElementById('nav-perfil').style.display = '';
+      document.getElementById('nav-login').style.display = 'none';
+    }
+
+    // ── Language UI ────────────────────────────────────────────────────────
+    function renderLangFlags() {
+      const container = document.getElementById('lang-flags');
+      const langs = rentaAvailableLanguages();
+      const current = rentaGetLang();
+      container.innerHTML = langs.map(l => {
+        const flag = RENTA_LANG_FLAGS[l.code] || '🌐';
+        return `<button type="button" class="lang-flag-btn${l.code === current ? ' active' : ''}"
+          data-code="${l.code}" title="${l.label}" aria-label="${l.label}">
+          <span class="lang-flag-emoji">${flag}</span>
+          <span class="lang-flag-code">${l.code.toUpperCase()}</span>
+        </button>`;
+      }).join('');
+      container.querySelectorAll('.lang-flag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          rentaSetLang(btn.dataset.code);
+          renderLangFlags();
+        });
+      });
+    }
+
+    // ── Toast ──────────────────────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type}`;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    // ── HTML escape ────────────────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatFecha(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    // ── Render result ──────────────────────────────────────────────────────
+    function renderResult(dec) {
+      const badgeClass = ESTADO_CLASS[dec.estado] || 'badge-blue';
+      const estadoLabel = ESTADO_LABELS[dec.estado] || dec.estado;
+      const editBtn = dec.estado === 'completado'
+        ? `<span class="info-box" style="margin:0;display:inline-block;">La declaración está completada y no puede modificarse.</span>`
+        : `<button type="button" class="btn btn-primary btn-sm" id="btn-edit-result">✏️ Editar</button>`;
+
+      document.getElementById('result-container').style.display = 'block';
+      document.getElementById('result-container').innerHTML = `
+        <div class="section-title">Resultado</div>
+        <div class="declaracion-card">
+          <div class="declaracion-header" style="cursor:default;">
+            <div class="declaracion-meta">
+              <span class="declaracion-id">#${escHtml(dec.id.slice(0, 8))}…</span>
+              <span class="estado-badge ${badgeClass}">${escHtml(estadoLabel)}</span>
+            </div>
+            <div class="declaracion-dates">
+              <span>Enviado: ${formatFecha(dec.creadoEn)}</span>
+              ${dec.actualizadoEn && dec.actualizadoEn !== dec.creadoEn ? `<span>Actualizado: ${formatFecha(dec.actualizadoEn)}</span>` : ''}
+            </div>
+          </div>
+          <div class="declaracion-body open" style="padding:12px 16px;">
+            <table class="respuestas-table">
+              <tbody>
+                <tr><td class="campo-label">Nombre</td><td class="campo-valor">${escHtml(dec.nombre)} ${escHtml(dec.apellidos)}</td></tr>
+                <tr><td class="campo-label">DNI / NIE</td><td class="campo-valor">${escHtml(dec.dniNie)}</td></tr>
+                <tr><td class="campo-label">Correo</td><td class="campo-valor">${escHtml(dec.email || '—')}</td></tr>
+              </tbody>
+            </table>
+            <div class="btn-row" style="margin-top:12px;">
+              ${editBtn}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Edit button handler
+      const editBtnEl = document.getElementById('btn-edit-result');
+      if (editBtnEl) {
+        editBtnEl.addEventListener('click', () => {
+          localStorage.setItem('renta_edit_dec', JSON.stringify(dec));
+          window.location.href = 'renta-form.html';
+        });
+      }
+    }
+
+    // ── Form submit ────────────────────────────────────────────────────────
+    document.getElementById('token-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = document.getElementById('token-input').value.trim();
+      document.getElementById('search-error').style.display = 'none';
+      document.getElementById('result-container').style.display = 'none';
+
+      if (!token) {
+        document.getElementById('search-error').textContent = '❌ Introduzca un token.';
+        document.getElementById('search-error').style.display = 'block';
+        return;
+      }
+
+      const btn = document.getElementById('btn-consultar');
+      btn.disabled = true;
+      btn.textContent = 'Consultando…';
+
+      const { data, error } = await rentaApiGetDeclaracionByToken(token);
+      btn.disabled = false;
+      btn.textContent = 'Consultar';
+
+      if (error || !data) {
+        document.getElementById('search-error').textContent = '❌ No se encontró ninguna declaración con ese token.';
+        document.getElementById('search-error').style.display = 'block';
+        return;
+      }
+
+      renderResult(data);
+    });
+
+    // Allow clicking on token input to clear result
+    document.getElementById('token-input').addEventListener('input', () => {
+      document.getElementById('result-container').style.display = 'none';
+      document.getElementById('search-error').style.display = 'none';
+    });
+
+    // ── Token history ──────────────────────────────────────────────────────
+    function loadHistory() {
+      try { return JSON.parse(localStorage.getItem(RENTA_TOKENS_KEY) || '[]'); }
+      catch { return []; }
+    }
+
+    function renderHistory() {
+      const history = loadHistory();
+      const card = document.getElementById('history-card');
+      const noCard = document.getElementById('no-history-card');
+      if (!history.length) {
+        card.style.display = 'none';
+        noCard.style.display = 'block';
+        return;
+      }
+      noCard.style.display = 'none';
+      card.style.display = 'block';
+
+      const list = document.getElementById('history-list');
+      list.innerHTML = history.map(item => `
+        <div class="declaracion-card" style="cursor:pointer;" data-token="${escHtml(item.id)}">
+          <div class="declaracion-header">
+            <div class="declaracion-meta">
+              <span class="declaracion-id">#${escHtml(item.id.slice(0, 8))}…</span>
+              ${item.dniNie ? `<span style="font-size:.85em;color:#666;">${escHtml(item.dniNie)}</span>` : ''}
+            </div>
+            <div class="declaracion-dates">
+              <span>Enviado: ${formatFecha(item.creadoEn)}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.declaracion-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.getElementById('token-input').value = card.dataset.token;
+          document.getElementById('token-form').dispatchEvent(new Event('submit'));
+        });
+      });
+    }
+
+    document.getElementById('btn-clear-history').addEventListener('click', () => {
+      localStorage.removeItem(RENTA_TOKENS_KEY);
+      renderHistory();
+    });
+
+    // ── Check for token in URL hash ────────────────────────────────────────
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#token=')) {
+      const tok = decodeURIComponent(hash.slice(7));
+      document.getElementById('token-input').value = tok;
+      document.getElementById('token-form').dispatchEvent(new Event('submit'));
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    rentaLoadTranslations().then(renderLangFlags);
+    renderHistory();
+
+  })();
+  </script>
+
+</body>
+</html>
