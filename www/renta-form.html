@@ -198,8 +198,8 @@
 
       // render step content
       const container = document.getElementById('wizard-step');
-      container.className = `wizard-step${stepDirection === 'backward' ? ' reverse' : ''}`;
-      // Force reflow to re-trigger animation
+      // Remove the class, force reflow, then re-add to restart the CSS animation
+      container.className = '';
       void container.offsetWidth;
       container.className = `wizard-step${stepDirection === 'backward' ? ' reverse' : ''}`;
 
