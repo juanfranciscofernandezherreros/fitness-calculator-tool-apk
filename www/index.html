@@ -2530,7 +2530,9 @@
       var el  = document.getElementById('range-' + name);
       var cfg = SLIDER_CONFIGS[name];
       if (!el || !cfg) return;
-      var v = Math.round((parseFloat(el.value) + delta) / cfg.step) * cfg.step;
+      // Use integer arithmetic to avoid floating-point drift
+      var scale = cfg.step < 1 ? Math.round(1 / cfg.step) : 1;
+      var v = (Math.round(parseFloat(el.value) * scale) + Math.round(delta * scale)) / scale;
       v = Math.max(cfg.min, Math.min(cfg.max, v));
       el.value = cfg.step < 1 ? v.toFixed(1) : Math.round(v);
       syncSlider(name);
@@ -2648,25 +2650,31 @@
       updateProgress();
       updateHipVisibility();
 
-      // Gender change → hip field
+      // Gender change → hip field; auto-advance from step 1 on first selection
+      var _lastSexo = null;
       document.querySelectorAll('input[name="sexo"]').forEach(function (r) {
         r.addEventListener('change', function () {
           updateHipVisibility();
-          // Auto-advance to next step on gender select (nice UX touch)
-          if (currentStep === 1) {
-            setTimeout(function () { wizardGoTo(2); }, 250);
+          // Only auto-advance to step 2 when on step 1 and the selection actually changed
+          if (currentStep === 1 && this.value !== _lastSexo) {
+            _lastSexo = this.value;
+            setTimeout(function () { wizardGoTo(2); }, 280);
           }
         });
       });
 
-      // Update lang-hidden when language changes
-      if (typeof setLang === 'function') {
-        var origSetLang = setLang;
-        window.setLang = function (lang) {
-          origSetLang(lang);
-          var lh = document.getElementById('lang-hidden');
-          if (lh) lh.value = lang;
-        };
+      // Update lang-hidden when language changes (listen on lang-hidden value)
+      var langHidden = document.getElementById('lang-hidden');
+      if (langHidden && typeof currentLang !== 'undefined') {
+        // Poll is unnecessary - wizard sets lang-hidden from the hidden form default;
+        // language changes already update currentLang via setLang(); the hidden field
+        // is synced at calculation time by reading currentLang directly.
+        document.querySelectorAll('.lang-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var lang = btn.getAttribute('data-lang');
+            if (lang && langHidden) langHidden.value = lang;
+          });
+        });
       }
     });
   })();
