@@ -4,7 +4,7 @@ Aplicación web de cálculo y seguimiento físico empaquetada como app nativa pa
 
 | Campo | Valor |
 |---|---|
-| **Nombre** | HelloWorld (Fitness Tools) |
+| **Nombre** | FitnessCalculcator |
 | **Package ID** | `com.example.hello` |
 | **Versión** | 1.0.0 |
 | **Plataformas** | Android, iOS |
@@ -173,7 +173,7 @@ cordova build ios --release
 
 ```bash
 # Abrir el proyecto en Xcode
-open platforms/ios/HelloWorld.xcworkspace
+open platforms/ios/FitnessCalculcator.xcworkspace
 ```
 
 Desde Xcode: **Product → Archive** para generar el `.ipa` de distribución.
@@ -182,7 +182,7 @@ Desde Xcode: **Product → Archive** para generar el `.ipa` de distribución.
 
 | Tipo | Ruta |
 |---|---|
-| **Debug (.app)** | `platforms/ios/build/emulator/HelloWorld.app` |
+| **Debug (.app)** | `platforms/ios/build/emulator/FitnessCalculcator.app` |
 | **Release (.ipa)** | generado vía Xcode Organizer o `cordova build ios --release` |
 
 ### Firma y certificados iOS
@@ -232,8 +232,8 @@ android-test/
     │   ├── app/build.gradle    # Configuración de la app Android
     │   └── CordovaLib/         # Librería Cordova nativa
     └── ios/                    # Plataforma iOS (generada al añadir)
-        ├── HelloWorld.xcworkspace
-        ├── HelloWorld/
+        ├── FitnessCalculcator.xcworkspace
+        ├── FitnessCalculcator/
         └── Podfile
 ```
 
