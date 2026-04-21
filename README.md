@@ -1,20 +1,36 @@
-# HelloWorld — Proyecto Cordova Android
+# Fitness Tools 💪 — Proyecto Cordova Android & iOS
 
-Aplicación web empaquetada como APK nativa de Android usando **Apache Cordova**.
+Aplicación web de cálculo y seguimiento físico empaquetada como app nativa para **Android** e **iOS** usando **Apache Cordova**.
 
 | Campo | Valor |
 |---|---|
-| **Nombre** | HelloWorld |
+| **Nombre** | HelloWorld (Fitness Tools) |
 | **Package ID** | `com.example.hello` |
 | **Versión** | 1.0.0 |
-| **Plataforma** | Android |
-| **Framework** | Cordova (`cordova-android` 14.0.1) |
-| **Página de inicio** | `www/survey.html` |
+| **Plataformas** | Android, iOS |
+| **Framework** | Cordova (`cordova-android` 14.0.1 · `cordova-ios` 7.1.1) |
+| **Página de inicio** | `www/index.html` |
 | **Licencia** | MIT |
 
 ---
 
+## Descripción de la aplicación
+
+**Fitness Tools** es una calculadora de composición corporal multilingüe (ES, EN, IT, FR, DE, PT, NL, PL, RU, ZH, JA) que ofrece:
+
+- Cálculo de TMB (Harris-Benedict, Mifflin-St Jeor, Katch-McArdle)
+- Cálculo de TDEE según nivel de actividad
+- % de grasa corporal (US Navy, YMCA, BMI)
+- IMC e interpretación por categoría
+- Macronutrientes según objetivo (volumen, definición, mantenimiento)
+- Gráficas interactivas (Chart.js)
+- Generación de informes en PDF imprimibles
+
+---
+
 ## Requisitos previos
+
+### Android
 
 | Herramienta | Versión requerida |
 |---|---|
@@ -26,9 +42,21 @@ Aplicación web empaquetada como APK nativa de Android usando **Apache Cordova**
 | **Gradle** | 8.13 (se descarga automáticamente vía wrapper) |
 | **Cordova CLI** | 12+ (compatible con cordova-android 14) |
 
+### iOS *(requiere macOS)*
+
+| Herramienta | Versión requerida |
+|---|---|
+| **macOS** | 13 Ventura o superior |
+| **Xcode** | 15+ |
+| **CocoaPods** | 1.12+ |
+| **Node.js** | 18+ (recomendado LTS) |
+| **Cordova CLI** | 12+ (compatible con cordova-ios 7) |
+
 ---
 
 ## Configuración del entorno
+
+### Android
 
 ```bash
 # 1. Instalar Cordova CLI globalmente
@@ -38,6 +66,16 @@ npm install -g cordova
 export ANDROID_HOME=/ruta/al/Android/sdk
 export JAVA_HOME=/ruta/al/jdk-11
 export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+```
+
+### iOS
+
+```bash
+# 1. Instalar Cordova CLI globalmente
+npm install -g cordova
+
+# 2. Instalar CocoaPods (si no está disponible)
+sudo gem install cocoapods
 ```
 
 ---
@@ -50,7 +88,19 @@ npm install
 
 ---
 
-## Compilar la APK
+## Añadir plataformas
+
+```bash
+# Android (ya incluida en el repositorio)
+cordova platform add android
+
+# iOS (requiere macOS)
+cordova platform add ios
+```
+
+---
+
+## Compilar para Android
 
 ### Opción A — Usando Cordova CLI (recomendado)
 
@@ -77,20 +127,14 @@ cd platforms/android
 ./gradlew assembleRelease
 ```
 
----
-
-## Ubicación de la APK generada
+### Ubicación de la APK generada
 
 | Tipo | Ruta |
 |---|---|
 | **Debug** | `platforms/android/app/build/outputs/apk/debug/app-debug.apk` |
 | **Release** | `platforms/android/app/build/outputs/apk/release/app-release.apk` |
 
----
-
-## Firma de la APK de Release
-
-Para generar una APK de release firmada necesitas un keystore:
+### Firma de la APK de Release
 
 ```bash
 # 1. Generar un keystore (solo una vez)
@@ -113,6 +157,60 @@ cordova build android --release
 
 ---
 
+## Compilar para iOS *(requiere macOS)*
+
+### Opción A — Usando Cordova CLI (recomendado)
+
+```bash
+# Build de debug
+cordova build ios
+
+# Build de release
+cordova build ios --release
+```
+
+### Opción B — Desde Xcode
+
+```bash
+# Abrir el proyecto en Xcode
+open platforms/ios/HelloWorld.xcworkspace
+```
+
+Desde Xcode: **Product → Archive** para generar el `.ipa` de distribución.
+
+### Ubicación del artefacto generado
+
+| Tipo | Ruta |
+|---|---|
+| **Debug (.app)** | `platforms/ios/build/emulator/HelloWorld.app` |
+| **Release (.ipa)** | generado vía Xcode Organizer o `cordova build ios --release` |
+
+### Firma y certificados iOS
+
+Para distribuir en App Store o TestFlight necesitas:
+
+1. Una cuenta de **Apple Developer** activa
+2. Un **Provisioning Profile** (desarrollo o distribución)
+3. Un **certificado de distribución** instalado en el Llavero de macOS
+4. Configurar `build.json` en la raíz del proyecto:
+
+```json
+{
+  "ios": {
+    "release": {
+      "codeSignIdentity": "iPhone Distribution",
+      "developmentTeam": "TU_TEAM_ID",
+      "packageType": "app-store",
+      "provisioningProfile": "UUID_DEL_PERFIL"
+    }
+  }
+}
+```
+
+> **⚠️ Importante:** No subas `build.json` con credenciales reales al repositorio.
+
+---
+
 ## Estructura del proyecto
 
 ```
@@ -120,38 +218,40 @@ android-test/
 ├── config.xml                  # Configuración principal de Cordova
 ├── package.json                # Dependencias npm/Cordova
 ├── www/                        # Código fuente web (HTML/CSS/JS)
-│   ├── survey.html             # Página de inicio (definida en config.xml)
-│   ├── index.html
-│   ├── login.html
-│   ├── register.html
-│   ├── gym.html
-│   ├── spotify.html
-│   ├── grammar/                # Módulos de gramática
-│   ├── *.js                    # Scripts
-│   └── *.css                   # Estilos
-├── res/                        # Recursos nativos (network_security_config)
+│   └── index.html              # Página única — Fitness Tools (SPA)
+├── res/                        # Recursos nativos
+│   └── android/
+│       └── network_security_config.xml
 ├── plugins/                    # Plugins de Cordova
 │   └── cordova-plugin-whitelist
-└── platforms/android/          # Plataforma Android generada
-    ├── build.gradle            # Configuración Gradle raíz
-    ├── gradle.properties       # Propiedades JVM/AndroidX
-    ├── cdv-gradle-config.json  # Configuración de versiones SDK/Gradle
-    ├── app/build.gradle        # Configuración de la app Android
-    └── CordovaLib/             # Librería Cordova nativa
+└── platforms/
+    ├── android/                # Plataforma Android generada
+    │   ├── build.gradle        # Configuración Gradle raíz
+    │   ├── gradle.properties   # Propiedades JVM/AndroidX
+    │   ├── cdv-gradle-config.json
+    │   ├── app/build.gradle    # Configuración de la app Android
+    │   └── CordovaLib/         # Librería Cordova nativa
+    └── ios/                    # Plataforma iOS (generada al añadir)
+        ├── HelloWorld.xcworkspace
+        ├── HelloWorld/
+        └── Podfile
 ```
 
 ---
 
-## Configuración técnica (cdv-gradle-config.json)
+## Configuración técnica Android (cdv-gradle-config.json)
 
 | Parámetro | Valor |
 |---|---|
 | **minSdkVersion** | 24 (Android 7.0 Nougat) |
 | **targetSdkVersion** | 35 (Android 15) |
+| **compileSdkVersion** | 35 |
 | **AGP** | 8.7.3 |
 | **Gradle** | 8.13 |
 | **Java compatibility** | 11 |
-| **Kotlin** | Deshabilitado |
+| **Kotlin** | 1.9.24 (soporte disponible, deshabilitado por defecto) |
+| **AndroidX AppCompat** | 1.7.0 |
+| **AndroidX WebKit** | 1.12.1 |
 | **Google Services** | Deshabilitado |
 
 ---
@@ -169,18 +269,23 @@ android-test/
 ```bash
 # Verificar que el entorno está correctamente configurado
 cordova requirements android
+cordova requirements ios          # solo en macOS
 
 # Limpiar builds anteriores
 cordova clean android
+cordova clean ios
 
-# Limpiar con Gradle
+# Limpiar con Gradle (Android)
 cd platforms/android && ./gradlew clean
 
-# Ejecutar en dispositivo/emulador conectado
+# Ejecutar en dispositivo/emulador Android conectado
 cordova run android
 
-# Ejecutar en emulador
-cordova emulate android
+# Ejecutar en simulador iOS (solo macOS)
+cordova emulate ios
+
+# Ejecutar en dispositivo iOS (solo macOS)
+cordova run ios
 ```
 
 ---
@@ -188,4 +293,6 @@ cordova emulate android
 ## Notas
 
 - El proyecto tiene configurado acceso abierto a recursos externos (`<access origin="*" />`). Para producción, se recomienda restringir estos permisos en `config.xml`.
-- La configuración de seguridad de red se aplica mediante `res/android/network_security_config.xml`.
+- La configuración de seguridad de red de Android se aplica mediante `res/android/network_security_config.xml`.
+- La compilación para iOS **solo es posible en macOS** con Xcode instalado. En entornos Linux/Windows se puede desarrollar y probar en navegador, pero el artefacto nativo debe generarse en un Mac.
+- Para publicar en Google Play o App Store es obligatorio firmar los artefactos con las claves/certificados correspondientes.
