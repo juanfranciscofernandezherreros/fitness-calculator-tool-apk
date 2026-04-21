@@ -610,6 +610,182 @@
     .header .lang-btn.active { border-color: #fff; background: rgba(255,255,255,.25); }
     @media print { .lang-selector { display: none; } }
 
+    /* ═══════════════════════════════════════════
+       WIZARD — Step-by-step interactive flow
+    ═══════════════════════════════════════════ */
+
+    /* Progress dots */
+    .wizard-progress {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: 1.8rem;
+    }
+    .wizard-progress-dots { display: flex; gap: .5rem; align-items: center; }
+    .wizard-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: #e5e7eb;
+      transition: all .3s;
+    }
+    .wizard-dot.active { background: #7c3aed; transform: scale(1.3); box-shadow: 0 0 0 3px rgba(124,58,237,.2); }
+    .wizard-dot.done   { background: #a78bfa; }
+    .wizard-step-label {
+      font-size: .78rem; font-weight: 700; color: #6b7280; margin-left: auto;
+    }
+
+    /* Step wrapper & transitions */
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; animation: slideIn .32s ease; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(32px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInBack {
+      from { opacity: 0; transform: translateX(-32px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(-32px); }
+    }
+    @keyframes slideOutBack {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(32px); }
+    }
+
+    /* Step heading */
+    .wstep-emoji { font-size: 2.8rem; text-align: center; margin-bottom: .5rem; line-height: 1; }
+    .wstep-question {
+      font-size: 1.25rem; font-weight: 800; color: #1f2937;
+      text-align: center; margin-bottom: .3rem; line-height: 1.3;
+    }
+    .wstep-sub { font-size: .82rem; color: #9ca3af; text-align: center; margin-bottom: 1.4rem; }
+
+    /* Slider field */
+    .slider-field { margin-bottom: 1.4rem; }
+    .slider-label {
+      font-size: .82rem; font-weight: 700; color: #374151;
+      margin-bottom: .5rem; display: flex; align-items: center; gap: .35rem;
+    }
+    .slider-display {
+      display: flex; align-items: center; gap: .9rem;
+      justify-content: center; margin-bottom: .65rem;
+    }
+    .slider-value-wrap { text-align: center; min-width: 90px; }
+    .slider-big-val {
+      font-size: 2.8rem; font-weight: 900; color: #6d28d9;
+      line-height: 1; letter-spacing: -.02em; display: block;
+    }
+    .slider-unit { font-size: .78rem; font-weight: 600; color: #9ca3af; margin-top: .1rem; display: block; }
+    .slider-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 2px solid #ddd6fe; background: #faf5ff; color: #6d28d9;
+      font-size: 1.4rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s, transform .1s, border-color .15s;
+      line-height: 1; padding: 0; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .slider-btn:hover  { background: #ede9fe; border-color: #a78bfa; }
+    .slider-btn:active { transform: scale(.9); }
+    .wizard-range {
+      width: 100%; -webkit-appearance: none; appearance: none;
+      height: 7px; border-radius: 4px; outline: none; cursor: pointer;
+      background: linear-gradient(to right, #7c3aed var(--pct, 50%), #e5e7eb var(--pct, 50%));
+    }
+    .wizard-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
+      background: #7c3aed; border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(124,58,237,.35); cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .wizard-range::-webkit-slider-thumb:active {
+      transform: scale(1.2); box-shadow: 0 3px 14px rgba(124,58,237,.48);
+    }
+    .wizard-range::-moz-range-thumb {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #7c3aed; border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(124,58,237,.35); cursor: pointer;
+    }
+
+    /* Calorie presets */
+    .calorie-presets {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: .55rem; margin-bottom: 1.4rem;
+    }
+    .preset-btn {
+      padding: .65rem .4rem; border: 2px solid #e5e7eb; border-radius: 10px;
+      background: #fafafa; cursor: pointer; font-size: .82rem; font-weight: 700;
+      color: #374151; line-height: 1.35; transition: border-color .15s, background .15s, transform .1s;
+      text-align: center; -webkit-tap-highlight-color: transparent;
+    }
+    .preset-btn:hover  { border-color: #a78bfa; background: #faf5ff; }
+    .preset-btn:active { transform: scale(.97); }
+    .preset-btn.selected {
+      border-color: #7c3aed;
+      background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: #6d28d9;
+    }
+    .preset-btn small { font-weight: 400; color: #9ca3af; display: block; font-size: .73rem; }
+
+    /* Optional extras compact grid */
+    .extras-compact {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .7rem; margin-bottom: 1.4rem;
+    }
+    @media (max-width: 420px) { .extras-compact { grid-template-columns: 1fr; } }
+    .extra-field { display: flex; flex-direction: column; gap: .25rem; }
+    .extra-label { font-size: .76rem; font-weight: 700; color: #374151; }
+    .extra-input-wrap { position: relative; }
+    .extra-input-wrap input[type="number"] {
+      width: 100%; border: 2px solid #e5e7eb; border-radius: 9px;
+      padding: .52rem .65rem; font-size: .95rem; color: #111827; background: #fff;
+      transition: border-color .2s, box-shadow .2s; -moz-appearance: textfield;
+    }
+    .extra-input-wrap input[type="number"]::-webkit-inner-spin-button,
+    .extra-input-wrap input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .extra-input-wrap input[type="number"]:focus {
+      outline: none; border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.13);
+    }
+    .extra-unit {
+      position: absolute; right: .6rem; top: 50%; transform: translateY(-50%);
+      font-size: .72rem; font-weight: 600; color: #9ca3af; pointer-events: none;
+    }
+
+    /* Navigation */
+    .wstep-nav { display: flex; gap: .7rem; margin-top: 1.2rem; }
+    .btn-next, .btn-calculate {
+      flex: 1; padding: .9rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff; border: none; border-radius: 12px; font-size: 1rem;
+      font-weight: 800; cursor: pointer; letter-spacing: .03em;
+      transition: opacity .2s, transform .15s; animation: btn-pulse 2.4s infinite;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-next:hover, .btn-calculate:hover { opacity: .93; transform: translateY(-1px); }
+    .btn-next:active, .btn-calculate:active { transform: scale(.98); animation: none; }
+    .btn-back {
+      padding: .9rem 1.1rem; background: #f3f4f6; color: #374151;
+      border: none; border-radius: 12px; font-size: .95rem; font-weight: 700;
+      cursor: pointer; transition: background .15s, transform .1s; white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-back:hover  { background: #e5e7eb; }
+    .btn-back:active { transform: scale(.98); }
+    .btn-next-solo {
+      display: block; width: 100%; margin-top: 1.4rem; padding: .9rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff; border: none; border-radius: 12px; font-size: 1.05rem;
+      font-weight: 800; cursor: pointer; animation: btn-pulse 2.4s infinite;
+      letter-spacing: .03em; transition: opacity .2s, transform .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-next-solo:hover { opacity: .93; transform: translateY(-1px); }
+
+    /* Reaction bubble */
+    .reaction-bubble {
+      text-align: center; font-size: 1.3rem; margin-bottom: .4rem;
+      min-height: 1.8rem; color: #374151;
+    }
+
     /* ── Improved error alert ── */
     .alert-error {
       display: flex;
@@ -781,232 +957,282 @@
     <!-- ── Error container (rendered by JS) ── -->
     <div id="error-container" style="display:none;"></div>
 
-    <form id="fitness-form" novalidate>
-      <!-- Hidden field: current language sent to server for translated errors -->
-      <input type="hidden" name="lang" id="lang-hidden" value="es" />
+    <!-- ══════════════════════════════════════════
+         WIZARD — Dynamic step-by-step data entry
+    ══════════════════════════════════════════ -->
+    <div id="wizard-container">
 
-      <!-- ── Sex selector ── -->
-      <div class="sex-toggle-group" role="group" aria-label="Sexo">
-        <label class="sex-toggle-label">
-          <input type="radio" name="sexo" value="hombre" checked />
-          <div class="sex-card">
-            <span class="sex-emoji">♂️</span>
-            <span class="sex-name" data-i18n="male">Hombre</span>
-          </div>
-        </label>
-        <label class="sex-toggle-label">
-          <input type="radio" name="sexo" value="mujer" />
-          <div class="sex-card">
-            <span class="sex-emoji">♀️</span>
-            <span class="sex-name" data-i18n="female">Mujer</span>
-          </div>
-        </label>
+      <!-- Progress dots + counter -->
+      <div class="wizard-progress" id="wizard-progress">
+        <div class="wizard-progress-dots" id="wizard-dots"></div>
+        <span class="wizard-step-label" id="wizard-step-label">1 / 5</span>
       </div>
 
-      <!-- ── Required fields ── -->
-      <div class="form-section required-section">
-        <div class="form-section-header">
-          <span class="form-section-badge">📋</span>
-          <span class="form-section-title" data-i18n="required_section">Datos obligatorios</span>
+      <!-- ── Step 1: Gender ── -->
+      <div class="wizard-step active" data-step="1" id="wstep-1">
+        <div class="wstep-emoji">👤</div>
+        <h2 class="wstep-question" data-i18n="step1_title">¿Cuál es tu sexo biológico?</h2>
+        <p class="wstep-sub" data-i18n="step1_sub">Necesario para la fórmula US Navy</p>
+        <div class="sex-toggle-group" role="group" aria-label="Sexo">
+          <label class="sex-toggle-label">
+            <input type="radio" name="sexo" value="hombre" id="sexo-h" checked />
+            <div class="sex-card">
+              <span class="sex-emoji">♂️</span>
+              <span class="sex-name" data-i18n="male">Hombre</span>
+            </div>
+          </label>
+          <label class="sex-toggle-label">
+            <input type="radio" name="sexo" value="mujer" id="sexo-m" />
+            <div class="sex-card">
+              <span class="sex-emoji">♀️</span>
+              <span class="sex-name" data-i18n="female">Mujer</span>
+            </div>
+          </label>
         </div>
-        <div class="form-cols">
+        <button type="button" class="btn-next-solo" onclick="wizardGoTo(2)" data-i18n="btn_next">Siguiente →</button>
+      </div>
 
-          <div class="field">
-            <label for="calorias"><span class="field-icon">🔥</span> <span data-i18n="f_calories">Calorías totales</span> <span class="required-star">*</span></label>
-            <span class="hint" data-i18n="h_calories">Total kcal consumidas en el día</span>
-            <div class="input-wrap">
-              <input type="number" id="calorias" name="calorias"
-                     step="any" min="1" inputmode="decimal" required
-                     class="has-unit"
-                     placeholder="ej. 3343"
-                     data-i18n-placeholder="p_calories" />
-              <span class="unit">kcal</span>
+      <!-- ── Step 2: Weight + Height ── -->
+      <div class="wizard-step" data-step="2" id="wstep-2">
+        <div class="wstep-emoji">⚖️</div>
+        <h2 class="wstep-question" data-i18n="step2_title">Tu peso y altura</h2>
+        <p class="wstep-sub" data-i18n="step2_sub">Arrastra el slider o usa los botones ＋ / −</p>
+        <div class="reaction-bubble" id="react-peso"></div>
+
+        <!-- Weight slider -->
+        <div class="slider-field">
+          <div class="slider-label">⚖️ <span data-i18n="f_weight">Peso</span></div>
+          <div class="slider-display">
+            <button class="slider-btn" onclick="adjustSlider('peso',-0.5)" aria-label="Menos peso">−</button>
+            <div class="slider-value-wrap">
+              <span id="val-peso" class="slider-big-val">75.0</span>
+              <span class="slider-unit">kg</span>
             </div>
+            <button class="slider-btn" onclick="adjustSlider('peso',0.5)" aria-label="Más peso">+</button>
           </div>
+          <input type="range" id="range-peso" min="30" max="200" step="0.5" value="75"
+                 oninput="syncSlider('peso')" class="wizard-range" />
+        </div>
 
-          <div class="field">
-            <label for="peso"><span class="field-icon">⚖️</span> <span data-i18n="f_weight">Peso</span> <span class="required-star">*</span></label>
-            <span class="hint" data-i18n="h_weight">Tu peso corporal en kg</span>
-            <div class="input-wrap">
-              <input type="number" id="peso" name="peso"
-                     step="any" min="1" inputmode="decimal" required
-                     class="has-unit"
-                     placeholder="ej. 72.5"
-                     data-i18n-placeholder="p_weight" />
-              <span class="unit">kg</span>
+        <!-- Height slider -->
+        <div class="slider-field">
+          <div class="slider-label">📏 <span data-i18n="f_height">Altura</span></div>
+          <div class="slider-display">
+            <button class="slider-btn" onclick="adjustSlider('altura',-1)" aria-label="Menos altura">−</button>
+            <div class="slider-value-wrap">
+              <span id="val-altura" class="slider-big-val">170</span>
+              <span class="slider-unit">cm</span>
             </div>
+            <button class="slider-btn" onclick="adjustSlider('altura',1)" aria-label="Más altura">+</button>
           </div>
+          <input type="range" id="range-altura" min="100" max="230" step="1" value="170"
+                 oninput="syncSlider('altura')" class="wizard-range" />
+        </div>
 
-          <div class="field">
-            <label for="altura"><span class="field-icon">📏</span> <span data-i18n="f_height">Altura</span> <span class="required-star">*</span></label>
-            <span class="hint" data-i18n="h_height">Tu altura en centímetros</span>
-            <div class="input-wrap">
-              <input type="number" id="altura" name="altura"
-                     step="any" min="1" inputmode="decimal" required
-                     class="has-unit"
-                     placeholder="ej. 175.5"
-                     data-i18n-placeholder="p_height" />
-              <span class="unit">cm</span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="cintura"><span class="field-icon">🫃</span> <span data-i18n="f_waist">Cintura</span> <span class="required-star">*</span></label>
-            <span class="hint" data-i18n="h_waist">Punto más estrecho del abdomen</span>
-            <div class="input-wrap">
-              <input type="number" id="cintura" name="cintura"
-                     step="any" min="1" inputmode="decimal" required
-                     class="has-unit"
-                     placeholder="ej. 84.0"
-                     data-i18n-placeholder="p_waist" />
-              <span class="unit">cm</span>
-            </div>
-          </div>
-
-          <div class="field full-width">
-            <label for="cuello"><span class="field-icon">🦒</span> <span data-i18n="f_neck">Cuello</span> <span class="required-star">*</span></label>
-            <span class="hint" data-i18n="h_neck">Parte inferior del cuello, sobre las clavículas</span>
-            <div class="input-wrap">
-              <input type="number" id="cuello" name="cuello"
-                     step="any" min="1" inputmode="decimal" required
-                     class="has-unit"
-                     placeholder="ej. 38.0"
-                     data-i18n-placeholder="p_neck" />
-              <span class="unit">cm</span>
-            </div>
-          </div>
-
+        <div class="wstep-nav">
+          <button type="button" class="btn-back" onclick="wizardGoTo(1)" data-i18n="btn_back">← Atrás</button>
+          <button type="button" class="btn-next" onclick="wizardGoTo(3)" data-i18n="btn_next">Siguiente →</button>
         </div>
       </div>
 
-      <!-- ── Optional fields ── -->
-      <div class="form-section optional-section">
-        <div class="form-section-header">
-          <span class="form-section-badge">➕</span>
-          <span class="form-section-title" data-i18n="optional_section">Datos opcionales</span>
-          <button type="button" class="optional-toggle-btn" id="optional-toggle-btn" aria-expanded="false" aria-controls="optional-fields">
-            <span id="optional-toggle-text" data-i18n="show_fields">Mostrar</span>
-            <span class="chevron" id="optional-chevron">▼</span>
-          </button>
-        </div>
-        <div class="optional-fields-wrap collapsed" id="optional-fields">
-          <div class="form-cols">
+      <!-- ── Step 3: Circumference measurements ── -->
+      <div class="wizard-step" data-step="3" id="wstep-3">
+        <div class="wstep-emoji">📐</div>
+        <h2 class="wstep-question" data-i18n="step3_title">Medidas de circunferencia</h2>
+        <p class="wstep-sub" data-i18n="step3_sub">Mide en el punto más estrecho / inferior</p>
 
-            <div class="field">
-              <label for="grasa"><span class="field-icon">💧</span> <span data-i18n="f_fat_pct">Grasa directa</span></label>
-              <span class="hint" data-i18n="h_bioimpedance">Báscula de bioimpedancia</span>
-              <div class="input-wrap">
-                <input type="number" id="grasa" name="grasa"
-                       step="any" min="0" max="100" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 14.5"
-                       data-i18n-placeholder="p_fat_pct" />
-                <span class="unit">%</span>
-              </div>
+        <!-- Waist -->
+        <div class="slider-field">
+          <div class="slider-label">🫃 <span data-i18n="f_waist">Cintura</span></div>
+          <div class="slider-display">
+            <button class="slider-btn" onclick="adjustSlider('cintura',-0.5)" aria-label="Menos cintura">−</button>
+            <div class="slider-value-wrap">
+              <span id="val-cintura" class="slider-big-val">85.0</span>
+              <span class="slider-unit">cm</span>
             </div>
-
-            <div class="field">
-              <label for="cadera"><span class="field-icon">🍑</span> <span data-i18n="f_hip">Cadera</span> <span id="cadera-star" class="required-star" style="display:none">*</span></label>
-              <span class="hint" id="cadera-hint" data-i18n="h_hip_women">Obligatorio para mujeres (fórmula US Navy)</span>
-              <div class="input-wrap">
-                <input type="number" id="cadera" name="cadera"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 95.0"
-                       data-i18n-placeholder="p_hip" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="biceps_der"><span class="field-icon">💪</span> <span data-i18n="f_bicep_r">Bíceps derecho</span></label>
-              <div class="input-wrap">
-                <input type="number" id="biceps_der" name="biceps_der"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 35.0"
-                       data-i18n-placeholder="p_bicep" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="biceps_izq"><span class="field-icon">💪</span> <span data-i18n="f_bicep_l">Bíceps izquierdo</span></label>
-              <div class="input-wrap">
-                <input type="number" id="biceps_izq" name="biceps_izq"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 34.5"
-                       data-i18n-placeholder="p_bicep" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="cuadriceps_der"><span class="field-icon">🦵</span> <span data-i18n="f_quad_r">Cuádriceps derecho</span></label>
-              <div class="input-wrap">
-                <input type="number" id="cuadriceps_der" name="cuadriceps_der"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 55.0"
-                       data-i18n-placeholder="p_quad" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="cuadriceps_izq"><span class="field-icon">🦵</span> <span data-i18n="f_quad_l">Cuádriceps izquierdo</span></label>
-              <div class="input-wrap">
-                <input type="number" id="cuadriceps_izq" name="cuadriceps_izq"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 54.5"
-                       data-i18n-placeholder="p_quad" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="gemelos_der"><span class="field-icon">🦿</span> <span data-i18n="f_calf_r">Gemelos derechos</span></label>
-              <div class="input-wrap">
-                <input type="number" id="gemelos_der" name="gemelos_der"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 37.0"
-                       data-i18n-placeholder="p_calf" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="gemelos_izq"><span class="field-icon">🦿</span> <span data-i18n="f_calf_l">Gemelos izquierdos</span></label>
-              <div class="input-wrap">
-                <input type="number" id="gemelos_izq" name="gemelos_izq"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 36.5"
-                       data-i18n-placeholder="p_calf" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
-            <div class="field full-width">
-              <label for="pectoral"><span class="field-icon">🫁</span> <span data-i18n="f_chest">Pectoral</span></label>
-              <div class="input-wrap">
-                <input type="number" id="pectoral" name="pectoral"
-                       step="any" min="0" inputmode="decimal"
-                       class="has-unit"
-                       placeholder="ej. 100.0"
-                       data-i18n-placeholder="p_chest" />
-                <span class="unit">cm</span>
-              </div>
-            </div>
-
+            <button class="slider-btn" onclick="adjustSlider('cintura',0.5)" aria-label="Más cintura">+</button>
           </div>
+          <input type="range" id="range-cintura" min="40" max="180" step="0.5" value="85"
+                 oninput="syncSlider('cintura')" class="wizard-range" />
+        </div>
+
+        <!-- Neck -->
+        <div class="slider-field">
+          <div class="slider-label">🦒 <span data-i18n="f_neck">Cuello</span></div>
+          <div class="slider-display">
+            <button class="slider-btn" onclick="adjustSlider('cuello',-0.5)" aria-label="Menos cuello">−</button>
+            <div class="slider-value-wrap">
+              <span id="val-cuello" class="slider-big-val">38.0</span>
+              <span class="slider-unit">cm</span>
+            </div>
+            <button class="slider-btn" onclick="adjustSlider('cuello',0.5)" aria-label="Más cuello">+</button>
+          </div>
+          <input type="range" id="range-cuello" min="20" max="70" step="0.5" value="38"
+                 oninput="syncSlider('cuello')" class="wizard-range" />
+        </div>
+
+        <!-- Hip (women only) -->
+        <div class="slider-field" id="hip-field" style="display:none;">
+          <div class="slider-label">🍑 <span data-i18n="f_hip">Cadera</span> <span class="required-star">*</span></div>
+          <div class="slider-display">
+            <button class="slider-btn" onclick="adjustSlider('cadera',-0.5)" aria-label="Menos cadera">−</button>
+            <div class="slider-value-wrap">
+              <span id="val-cadera" class="slider-big-val">95.0</span>
+              <span class="slider-unit">cm</span>
+            </div>
+            <button class="slider-btn" onclick="adjustSlider('cadera',0.5)" aria-label="Más cadera">+</button>
+          </div>
+          <input type="range" id="range-cadera" min="50" max="180" step="0.5" value="95"
+                 oninput="syncSlider('cadera')" class="wizard-range" />
+        </div>
+
+        <div class="wstep-nav">
+          <button type="button" class="btn-back" onclick="wizardGoTo(2)" data-i18n="btn_back">← Atrás</button>
+          <button type="button" class="btn-next" onclick="wizardGoTo(4)" data-i18n="btn_next">Siguiente →</button>
         </div>
       </div>
 
-      <button type="submit" class="btn-submit"><span data-i18n="btn_calculate">🚀 Calcular mi análisis</span></button>
+      <!-- ── Step 4: Daily calories ── -->
+      <div class="wizard-step" data-step="4" id="wstep-4">
+        <div class="wstep-emoji">🔥</div>
+        <h2 class="wstep-question" data-i18n="step4_title">Calorías diarias</h2>
+        <p class="wstep-sub" data-i18n="step4_sub">Gasto calórico total del día (TDEE)</p>
+
+        <div class="slider-field">
+          <div class="slider-display">
+            <button class="slider-btn" onclick="adjustSlider('calorias',-50)" aria-label="Menos calorías">−</button>
+            <div class="slider-value-wrap">
+              <span id="val-calorias" class="slider-big-val">2500</span>
+              <span class="slider-unit">kcal</span>
+            </div>
+            <button class="slider-btn" onclick="adjustSlider('calorias',50)" aria-label="Más calorías">+</button>
+          </div>
+          <input type="range" id="range-calorias" min="500" max="8000" step="50" value="2500"
+                 oninput="syncSlider('calorias')" class="wizard-range" />
+        </div>
+
+        <!-- Activity presets -->
+        <div class="calorie-presets" id="calorie-presets">
+          <button type="button" class="preset-btn" onclick="setCaloriePreset(1800)">😴 <span data-i18n="preset_sedentary">Sedentario</span><small>~1800 kcal</small></button>
+          <button type="button" class="preset-btn" onclick="setCaloriePreset(2500)">🚶 <span data-i18n="preset_moderate">Moderado</span><small>~2500 kcal</small></button>
+          <button type="button" class="preset-btn" onclick="setCaloriePreset(3200)">🏃 <span data-i18n="preset_active">Activo</span><small>~3200 kcal</small></button>
+          <button type="button" class="preset-btn" onclick="setCaloriePreset(4000)">💪 <span data-i18n="preset_very_active">Muy activo</span><small>~4000 kcal</small></button>
+        </div>
+
+        <div class="wstep-nav">
+          <button type="button" class="btn-back" onclick="wizardGoTo(3)" data-i18n="btn_back">← Atrás</button>
+          <button type="button" class="btn-next" onclick="wizardGoTo(5)" data-i18n="btn_next">Siguiente →</button>
+        </div>
+      </div>
+
+      <!-- ── Step 5: Optional extras + Calculate ── -->
+      <div class="wizard-step" data-step="5" id="wstep-5">
+        <div class="wstep-emoji">✨</div>
+        <h2 class="wstep-question" data-i18n="step5_title">Medidas adicionales <span style="font-size:.72em;opacity:.6">(opcionales)</span></h2>
+        <p class="wstep-sub" data-i18n="step5_sub">Añade más datos para un análisis más completo o salta directamente.</p>
+
+        <div class="extras-compact">
+          <div class="extra-field">
+            <span class="extra-label">💧 <span data-i18n="f_fat_pct">Grasa directa</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-grasa" step="any" min="0" max="100" inputmode="decimal"
+                     placeholder="ej. 14.5" data-i18n-placeholder="p_fat_pct" />
+              <span class="extra-unit">%</span>
+            </div>
+          </div>
+          <div class="extra-field" id="x-hip-wrap" style="display:none;">
+            <span class="extra-label">🍑 <span data-i18n="f_hip">Cadera</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-cadera" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 95.0" data-i18n-placeholder="p_hip" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+          <div class="extra-field">
+            <span class="extra-label">💪 <span data-i18n="f_bicep_r">Bíceps der.</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-biceps_der" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 35.0" data-i18n-placeholder="p_bicep" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+          <div class="extra-field">
+            <span class="extra-label">💪 <span data-i18n="f_bicep_l">Bíceps izq.</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-biceps_izq" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 34.5" data-i18n-placeholder="p_bicep" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+          <div class="extra-field">
+            <span class="extra-label">🦵 <span data-i18n="f_quad_r">Cuádriceps der.</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-cuadriceps_der" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 55.0" data-i18n-placeholder="p_quad" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+          <div class="extra-field">
+            <span class="extra-label">🦵 <span data-i18n="f_quad_l">Cuádriceps izq.</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-cuadriceps_izq" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 54.5" data-i18n-placeholder="p_quad" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+          <div class="extra-field">
+            <span class="extra-label">🦿 <span data-i18n="f_calf_r">Gemelos der.</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-gemelos_der" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 37.0" data-i18n-placeholder="p_calf" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+          <div class="extra-field">
+            <span class="extra-label">🦿 <span data-i18n="f_calf_l">Gemelos izq.</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-gemelos_izq" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 36.5" data-i18n-placeholder="p_calf" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+          <div class="extra-field">
+            <span class="extra-label">🫁 <span data-i18n="f_chest">Pectoral</span></span>
+            <div class="extra-input-wrap">
+              <input type="number" id="x-pectoral" step="any" min="0" inputmode="decimal"
+                     placeholder="ej. 100.0" data-i18n-placeholder="p_chest" />
+              <span class="extra-unit">cm</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wstep-nav">
+          <button type="button" class="btn-back" onclick="wizardGoTo(4)" data-i18n="btn_back">← Atrás</button>
+          <button type="button" class="btn-calculate" id="btn-calculate-wizard"
+                  onclick="wizardCalculate()" data-i18n="btn_calculate">🚀 Calcular mi análisis</button>
+        </div>
+      </div>
+
+    </div><!-- /#wizard-container -->
+
+    <!-- Hidden form used by the calculation engine (filled by wizard JS) -->
+    <form id="fitness-form" style="display:none;" novalidate>
+      <input type="hidden" name="lang"           id="lang-hidden"           value="es" />
+      <input type="hidden" name="sexo"           id="hidden-sexo"           value="hombre" />
+      <input type="hidden" name="calorias"       id="hidden-calorias"       value="" />
+      <input type="hidden" name="peso"           id="hidden-peso"           value="" />
+      <input type="hidden" name="altura"         id="hidden-altura"         value="" />
+      <input type="hidden" name="cintura"        id="hidden-cintura"        value="" />
+      <input type="hidden" name="cuello"         id="hidden-cuello"         value="" />
+      <input type="hidden" name="grasa"          id="hidden-grasa"          value="" />
+      <input type="hidden" name="cadera"         id="hidden-cadera"         value="" />
+      <input type="hidden" name="biceps_der"     id="hidden-biceps_der"     value="" />
+      <input type="hidden" name="biceps_izq"     id="hidden-biceps_izq"     value="" />
+      <input type="hidden" name="cuadriceps_der" id="hidden-cuadriceps_der" value="" />
+      <input type="hidden" name="cuadriceps_izq" id="hidden-cuadriceps_izq" value="" />
+      <input type="hidden" name="gemelos_der"    id="hidden-gemelos_der"    value="" />
+      <input type="hidden" name="gemelos_izq"    id="hidden-gemelos_izq"    value="" />
+      <input type="hidden" name="pectoral"       id="hidden-pectoral"       value="" />
     </form>
 
     <!-- Results injected here by JavaScript -->
@@ -1068,7 +1294,20 @@
         p_calories: "ej. 3343", p_weight: "ej. 72.5", p_height: "ej. 175.5",
         p_waist: "ej. 84.0", p_neck: "ej. 38.0", p_fat_pct: "ej. 14.5",
         p_hip: "ej. 95.0", p_bicep: "ej. 35.0", p_quad: "ej. 55.0",
-        p_calf: "ej. 37.0", p_chest: "ej. 100.0"
+        p_calf: "ej. 37.0", p_chest: "ej. 100.0",
+        btn_next: "Siguiente →", btn_back: "← Atrás",
+        step1_title: "¿Cuál es tu sexo biológico?",
+        step1_sub: "Necesario para la fórmula US Navy",
+        step2_title: "Tu peso y altura",
+        step2_sub: "Arrastra el slider o usa los botones + / −",
+        step3_title: "Medidas de circunferencia",
+        step3_sub: "Mide en el punto más estrecho / inferior",
+        step4_title: "Calorías diarias",
+        step4_sub: "Gasto calórico total del día (TDEE)",
+        step5_title: "Medidas adicionales",
+        step5_sub: "Añade más datos para un análisis más completo o salta directamente.",
+        preset_sedentary: "Sedentario", preset_moderate: "Moderado",
+        preset_active: "Activo", preset_very_active: "Muy activo"
       },
       en: {
         subtitle: "Body composition and macronutrient distribution",
@@ -1634,60 +1873,8 @@
 
   <script>
     (function () {
-      /* ── Cadera required for women ── */
-      var radios = document.querySelectorAll('input[name="sexo"]');
-      var caderaStar = document.getElementById('cadera-star');
-      var caderaInput = document.getElementById('cadera');
-
-      function actualizarCadera() {
-        var esMujer = document.querySelector('input[name="sexo"]:checked').value === 'mujer';
-        caderaStar.style.display = esMujer ? 'inline' : 'none';
-        caderaInput.required = esMujer;
-        /* Auto-expand optional section when mujer is selected so user sees cadera */
-        if (esMujer) expandOptional();
-      }
-
-      radios.forEach(function (r) { r.addEventListener('change', actualizarCadera); });
-      actualizarCadera();
-
-      /* ── Optional section toggle ── */
-      var toggleBtn   = document.getElementById('optional-toggle-btn');
-      var toggleText  = document.getElementById('optional-toggle-text');
-      var chevron     = document.getElementById('optional-chevron');
-      var fieldsWrap  = document.getElementById('optional-fields');
-
-      /* Expand if any optional field has a value (POST back) */
-      var optionalInputs = fieldsWrap ? fieldsWrap.querySelectorAll('input') : [];
-      var hasOptionalValue = false;
-      optionalInputs.forEach(function (inp) { if (inp.value.trim() !== '') hasOptionalValue = true; });
-
-      function expandOptional() {
-        if (!fieldsWrap) return;
-        fieldsWrap.classList.remove('collapsed');
-        fieldsWrap.classList.add('expanded');
-        if (toggleText) toggleText.setAttribute('data-i18n', 'hide_fields');
-        if (toggleText) toggleText.textContent = t('hide_fields');
-        chevron.style.transform = 'rotate(180deg)';
-        toggleBtn.setAttribute('aria-expanded', 'true');
-      }
-      function collapseOptional() {
-        if (!fieldsWrap) return;
-        fieldsWrap.classList.remove('expanded');
-        fieldsWrap.classList.add('collapsed');
-        if (toggleText) toggleText.setAttribute('data-i18n', 'show_fields');
-        if (toggleText) toggleText.textContent = t('show_fields');
-        chevron.style.transform = '';
-        toggleBtn.setAttribute('aria-expanded', 'false');
-      }
-
-      if (hasOptionalValue) expandOptional();
-
-      if (toggleBtn) {
-        toggleBtn.addEventListener('click', function () {
-          var isExpanded = fieldsWrap.classList.contains('expanded');
-          if (isExpanded) collapseOptional(); else expandOptional();
-        });
-      }
+      /* ── Legacy optional-section toggle (no-op: replaced by wizard) ── */
+      /* All cadera/optional-section logic is now handled by the wizard JS */
     })();
   </script>
 
@@ -2156,11 +2343,11 @@
 
     /* ── Show loading state on button ── */
     function setLoading(on) {
-      var btn = document.querySelector('.btn-submit');
+      var btn = document.getElementById('btn-calculate-wizard') || document.querySelector('.btn-submit');
       if (!btn) return;
       btn.disabled = on;
-      if (on) btn.style.opacity = '0.6';
-      else    btn.style.opacity = '';
+      if (on) { btn.style.opacity = '0.6'; btn.style.animation = 'none'; }
+      else    { btn.style.opacity = ''; btn.style.animation = ''; }
     }
 
     /* ── Form submit handler ── */
@@ -2279,6 +2466,217 @@
       html += '<script id="spa-result-data" type="application/json">' + safeJson + '<\/script>';
       return html;
     };
+  })();
+  </script>
+
+  <!-- ── WIZARD — Navigation & slider logic ── -->
+  <script>
+  (function () {
+    'use strict';
+
+    var TOTAL_STEPS = 5;
+    var currentStep = 1;
+    var goingForward = true;
+
+    var SLIDER_CONFIGS = {
+      peso:     { min: 30,  max: 200,  step: 0.5, decimals: 1 },
+      altura:   { min: 100, max: 230,  step: 1,   decimals: 0 },
+      cintura:  { min: 40,  max: 180,  step: 0.5, decimals: 1 },
+      cuello:   { min: 20,  max: 70,   step: 0.5, decimals: 1 },
+      cadera:   { min: 50,  max: 180,  step: 0.5, decimals: 1 },
+      calorias: { min: 500, max: 8000, step: 50,  decimals: 0 }
+    };
+
+    /* ── Update progress dots ── */
+    function updateProgress() {
+      var dotsEl  = document.getElementById('wizard-dots');
+      var labelEl = document.getElementById('wizard-step-label');
+      if (dotsEl) {
+        dotsEl.innerHTML = '';
+        for (var i = 1; i <= TOTAL_STEPS; i++) {
+          var dot = document.createElement('span');
+          dot.className = 'wizard-dot' +
+            (i === currentStep ? ' active' : '') +
+            (i < currentStep   ? ' done'   : '');
+          dotsEl.appendChild(dot);
+        }
+      }
+      if (labelEl) labelEl.textContent = currentStep + ' / ' + TOTAL_STEPS;
+    }
+
+    /* ── Update slider track CSS gradient ── */
+    function updateRangeTrack(name) {
+      var el  = document.getElementById('range-' + name);
+      var cfg = SLIDER_CONFIGS[name];
+      if (!el || !cfg) return;
+      var pct = ((parseFloat(el.value) - cfg.min) / (cfg.max - cfg.min)) * 100;
+      el.style.setProperty('--pct', pct.toFixed(1) + '%');
+    }
+
+    /* ── Sync display label to slider value ── */
+    window.syncSlider = function (name) {
+      var el    = document.getElementById('range-' + name);
+      var valEl = document.getElementById('val-' + name);
+      if (!el || !valEl) return;
+      var cfg = SLIDER_CONFIGS[name];
+      var v   = parseFloat(el.value);
+      valEl.textContent = (cfg && cfg.decimals === 0) ? Math.round(v) : v.toFixed(1);
+      updateRangeTrack(name);
+      if (name === 'peso') updateReactionBubble(v);
+    };
+
+    /* ── +/- fine-tuning buttons ── */
+    window.adjustSlider = function (name, delta) {
+      var el  = document.getElementById('range-' + name);
+      var cfg = SLIDER_CONFIGS[name];
+      if (!el || !cfg) return;
+      // Use integer arithmetic to avoid floating-point drift
+      var scale = cfg.step < 1 ? Math.round(1 / cfg.step) : 1;
+      var v = (Math.round(parseFloat(el.value) * scale) + Math.round(delta * scale)) / scale;
+      v = Math.max(cfg.min, Math.min(cfg.max, v));
+      el.value = cfg.step < 1 ? v.toFixed(1) : Math.round(v);
+      syncSlider(name);
+    };
+
+    /* ── Calorie preset buttons ── */
+    window.setCaloriePreset = function (kcal) {
+      var el = document.getElementById('range-calorias');
+      if (el) { el.value = kcal; syncSlider('calorias'); }
+      document.querySelectorAll('.preset-btn').forEach(function (btn) {
+        var fn = btn.getAttribute('onclick') || '';
+        btn.classList.toggle('selected', fn === 'setCaloriePreset(' + kcal + ')');
+      });
+    };
+
+    /* ── Weight reaction emoji ── */
+    function updateReactionBubble(val) {
+      var el = document.getElementById('react-peso');
+      if (!el) return;
+      var msg;
+      if      (val < 45)  msg = '😮 ¡Muy ligero!';
+      else if (val < 60)  msg = '🌱 ¡En forma!';
+      else if (val < 80)  msg = '💪 ¡Bien!';
+      else if (val < 100) msg = '🏋️ ¡Robusto!';
+      else if (val < 130) msg = '🐘 ¡Imponente!';
+      else                msg = '🦣 ¡Potencia pura!';
+      el.textContent = msg;
+    }
+
+    /* ── Show/hide hip slider based on gender ── */
+    function updateHipVisibility() {
+      var checked  = document.querySelector('input[name="sexo"]:checked');
+      var isMujer  = checked && checked.value === 'mujer';
+      var hipField = document.getElementById('hip-field');
+      var hipWrap  = document.getElementById('x-hip-wrap');
+      if (hipField) hipField.style.display = isMujer ? '' : 'none';
+      if (hipWrap)  hipWrap.style.display  = isMujer ? '' : 'none';
+    }
+
+    /* ── Navigate to a specific step ── */
+    window.wizardGoTo = function (step) {
+      if (step < 1 || step > TOTAL_STEPS || step === currentStep) return;
+      updateHipVisibility();
+
+      var fromEl = document.getElementById('wstep-' + currentStep);
+      var toEl   = document.getElementById('wstep-' + step);
+      if (!fromEl || !toEl) return;
+
+      goingForward = step > currentStep;
+
+      // Animate out
+      fromEl.style.animation = goingForward
+        ? 'slideOut .22s ease forwards'
+        : 'slideOutBack .22s ease forwards';
+
+      setTimeout(function () {
+        fromEl.classList.remove('active');
+        fromEl.style.animation = '';
+        currentStep = step;
+        toEl.classList.add('active');
+        toEl.style.animation = goingForward
+          ? 'slideIn .32s ease'
+          : 'slideInBack .32s ease';
+        updateProgress();
+        // Refresh all slider tracks in case DOM was rebuilt
+        Object.keys(SLIDER_CONFIGS).forEach(updateRangeTrack);
+        // Scroll card into view on mobile
+        var card = document.querySelector('.card');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 230);
+    };
+
+    /* ── Collect wizard data and trigger calculation ── */
+    window.wizardCalculate = function () {
+      function sliderVal(name) {
+        var el = document.getElementById('range-' + name);
+        return el ? el.value : '';
+      }
+      function xVal(id) {
+        var el = document.getElementById('x-' + id);
+        return (el && el.value.trim() !== '') ? el.value.trim() : '';
+      }
+
+      var sexo = (document.querySelector('input[name="sexo"]:checked') || {}).value || 'hombre';
+      document.getElementById('hidden-sexo').value     = sexo;
+      document.getElementById('hidden-calorias').value = sliderVal('calorias');
+      document.getElementById('hidden-peso').value     = sliderVal('peso');
+      document.getElementById('hidden-altura').value   = sliderVal('altura');
+      document.getElementById('hidden-cintura').value  = sliderVal('cintura');
+      document.getElementById('hidden-cuello').value   = sliderVal('cuello');
+
+      // Hip: slider value (if female) OR optional extra field
+      var isMujer = sexo === 'mujer';
+      document.getElementById('hidden-cadera').value = isMujer
+        ? (sliderVal('cadera') || xVal('cadera'))
+        : '';
+
+      document.getElementById('hidden-grasa').value          = xVal('grasa');
+      document.getElementById('hidden-biceps_der').value     = xVal('biceps_der');
+      document.getElementById('hidden-biceps_izq').value     = xVal('biceps_izq');
+      document.getElementById('hidden-cuadriceps_der').value = xVal('cuadriceps_der');
+      document.getElementById('hidden-cuadriceps_izq').value = xVal('cuadriceps_izq');
+      document.getElementById('hidden-gemelos_der').value    = xVal('gemelos_der');
+      document.getElementById('hidden-gemelos_izq').value    = xVal('gemelos_izq');
+      document.getElementById('hidden-pectoral').value       = xVal('pectoral');
+
+      var form = document.getElementById('fitness-form');
+      if (form) form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    };
+
+    /* ── Init on DOM ready ── */
+    document.addEventListener('DOMContentLoaded', function () {
+      // Init all slider displays
+      Object.keys(SLIDER_CONFIGS).forEach(function (name) { syncSlider(name); });
+      updateProgress();
+      updateHipVisibility();
+
+      // Gender change → hip field; auto-advance from step 1 on first selection
+      var _lastSexo = null;
+      document.querySelectorAll('input[name="sexo"]').forEach(function (r) {
+        r.addEventListener('change', function () {
+          updateHipVisibility();
+          // Only auto-advance to step 2 when on step 1 and the selection actually changed
+          if (currentStep === 1 && this.value !== _lastSexo) {
+            _lastSexo = this.value;
+            setTimeout(function () { wizardGoTo(2); }, 280);
+          }
+        });
+      });
+
+      // Update lang-hidden when language changes (listen on lang-hidden value)
+      var langHidden = document.getElementById('lang-hidden');
+      if (langHidden && typeof currentLang !== 'undefined') {
+        // Poll is unnecessary - wizard sets lang-hidden from the hidden form default;
+        // language changes already update currentLang via setLang(); the hidden field
+        // is synced at calculation time by reading currentLang directly.
+        document.querySelectorAll('.lang-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var lang = btn.getAttribute('data-lang');
+            if (lang && langHidden) langHidden.value = lang;
+          });
+        });
+      }
+    });
   })();
   </script>
 
