@@ -589,6 +589,48 @@
     .faq-tag-male   { color: #93c5fd; font-weight: 700; }
     .faq-tag-female { color: #f9a8d4; font-weight: 700; }
 
+    /* ── FAQ inside wizard card (step 0, white background) ── */
+    .wstep-0 .faq-section {
+      width: 100%;
+      margin-top: 0;
+    }
+    .wstep-0 .faq-section-heading {
+      color: #374151;
+    }
+    .wstep-0 .faq-section-heading h2 {
+      font-size: .95rem;
+      text-shadow: none;
+      color: #374151;
+    }
+    .wstep-0 .faq-item {
+      background: #f8fafc;
+      border: 1.5px solid #e5e7eb;
+      backdrop-filter: none;
+    }
+    .wstep-0 .faq-item:hover { background: #f0f4ff; }
+    .wstep-0 .faq-question   { color: #1f2937; }
+    .wstep-0 .faq-chevron    { color: #6b7280; }
+    .wstep-0 .faq-answer-inner { color: #374151; }
+    .wstep-0 .faq-answer-inner p { color: #374151; }
+    .wstep-0 .faq-formula {
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: .3rem .65rem;
+      display: inline-block;
+      margin: .2rem 0;
+      color: #6d28d9;
+      word-break: break-word;
+    }
+    .wstep-0 .faq-tag-male   { color: #3b82f6; }
+    .wstep-0 .faq-tag-female { color: #ec4899; }
+
+    /* ── Language selector inside card (step 0) ── */
+    .wstep-0 .lang-selector {
+      margin: .6rem 0 1.4rem;
+    }
+    .wstep-0 .lang-btn:hover  { border-color: #a78bfa; background: #f5f3ff; transform: scale(1.1); }
+    .wstep-0 .lang-btn.active { border-color: #7c3aed; background: #ede9fe; }
+
     /* ── Language selector ── */
     .lang-selector {
       display: flex;
@@ -845,113 +887,6 @@
       <a href="/?lang=ja" class="lang-btn" data-lang="ja" title="日本語"      onclick="event.preventDefault(); setLang('ja')">🇯🇵</a>
     </nav>
 
-    <!-- ── FAQ Section ── -->
-    <section class="faq-section no-print" aria-label="FAQ">
-    <div class="faq-section-heading">
-      <span style="font-size:1.3rem;">❓</span>
-      <h2 data-i18n="faq_title">Preguntas frecuentes — ¿Cómo funcionan las fórmulas?</h2>
-    </div>
-
-    <!-- Q1: US Navy -->
-    <div class="faq-item">
-      <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
-        <span class="faq-question-text" data-i18n="faq_q1">¿Qué es la fórmula US Navy y cómo calcula la grasa corporal?</span>
-        <span class="faq-chevron">▼</span>
-      </button>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">
-          <p>La fórmula <strong>US Navy</strong> estima el porcentaje de grasa corporal usando medidas de circunferencia corporal y la altura, sin necesidad de equipos especiales.</p>
-          <p><span class="faq-tag-male">♂ Hombre:</span><br>
-            <span class="faq-formula">%GC = 495 / (1.0324 − 0.19077 × log₁₀(cintura − cuello) + 0.15456 × log₁₀(altura)) − 450</span>
-          </p>
-          <p><span class="faq-tag-female">♀ Mujer:</span> requiere la medida de <strong>cadera</strong> adicionalmente.<br>
-            <span class="faq-formula">%GC = 495 / (1.29579 − 0.35004 × log₁₀(cintura + cadera − cuello) + 0.22100 × log₁₀(altura)) − 450</span>
-          </p>
-          <p>Las mujeres acumulan más grasa en la zona de la cadera, por eso esa medida es obligatoria en su fórmula. Los rangos saludables son: <span class="faq-tag-male">♂ 6–17 %</span> y <span class="faq-tag-female">♀ 14–24 %</span>.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Q2: Lean Mass -->
-    <div class="faq-item">
-      <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
-        <span class="faq-question-text" data-i18n="faq_q2">¿Qué es la masa magra y cómo se calcula?</span>
-        <span class="faq-chevron">▼</span>
-      </button>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">
-          <p>La <strong>masa magra</strong> (Lean Body Mass) es todo lo que no es grasa: músculos, huesos, agua y órganos. Es el indicador clave del rendimiento deportivo.</p>
-          <p><span class="faq-formula">Masa grasa (kg) = Peso × (%GC / 100)</span></p>
-          <p><span class="faq-formula">Masa magra (kg) = Peso − Masa grasa</span></p>
-          <p>No hay diferencia de fórmula entre <span class="faq-tag-male">♂</span> y <span class="faq-tag-female">♀</span>, pero los valores normales difieren: los hombres suelen tener mayor proporción de masa magra.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Q3: IMC/BMI -->
-    <div class="faq-item">
-      <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
-        <span class="faq-question-text" data-i18n="faq_q3">¿Qué es el IMC (Índice de Masa Corporal)?</span>
-        <span class="faq-chevron">▼</span>
-      </button>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">
-          <p>El <strong>IMC</strong> mide el peso relativo a la talla. No distingue grasa de músculo, por lo que es orientativo.</p>
-          <p><span class="faq-formula">IMC = Peso (kg) / Altura (m)²</span></p>
-          <p>Clasificación OMS (igual para <span class="faq-tag-male">♂</span> y <span class="faq-tag-female">♀</span>): &lt;18.5 Bajo peso · 18.5–24.9 Normal · 25–29.9 Sobrepeso · ≥30 Obesidad.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Q4: FFMI -->
-    <div class="faq-item">
-      <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
-        <span class="faq-question-text" data-i18n="faq_q4">¿Qué es el FFMI y por qué varía entre hombres y mujeres?</span>
-        <span class="faq-chevron">▼</span>
-      </button>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">
-          <p>El <strong>FFMI</strong> (Fat-Free Mass Index) mide la masa muscular relativa a la estatura. Es más preciso que el IMC para deportistas.</p>
-          <p><span class="faq-formula">FFMI = Masa magra (kg) / Altura (m)²</span></p>
-          <p><span class="faq-formula">FFMI normalizado = FFMI + 6.1 × (1.80 − Altura m)</span></p>
-          <p>Los límites naturales difieren por hormonas: <span class="faq-tag-male">♂ &lt;25 kg/m²</span> · <span class="faq-tag-female">♀ &lt;22 kg/m²</span>. Valores superiores pueden indicar uso de sustancias.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Q5: Macros -->
-    <div class="faq-item">
-      <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
-        <span class="faq-question-text" data-i18n="faq_q5">¿Cómo se distribuyen los macronutrientes?</span>
-        <span class="faq-chevron">▼</span>
-      </button>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">
-          <p>Los macros se calculan con valores fijos por kg de peso, optimizados para rendimiento deportivo:</p>
-          <p><span class="faq-formula">Proteína = Peso × 2.0 g/kg → × 4 kcal/g</span></p>
-          <p><span class="faq-formula">Grasa = Peso × 0.8 g/kg → × 9 kcal/g</span></p>
-          <p><span class="faq-formula">Carbohidratos = (Calorías totales − kcal proteína − kcal grasa) / 4</span></p>
-          <p>La misma fórmula aplica a <span class="faq-tag-male">♂</span> y <span class="faq-tag-female">♀</span>, aunque las necesidades calóricas totales suelen diferir según el metabolismo basal.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Q6: Male vs Female differences -->
-    <div class="faq-item">
-      <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
-        <span class="faq-question-text" data-i18n="faq_q6">¿Cuáles son las diferencias principales entre hombres y mujeres en esta calculadora?</span>
-        <span class="faq-chevron">▼</span>
-      </button>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">
-          <p><span class="faq-tag-male">♂ Hombre</span> usa: <em>cintura y cuello</em> para la fórmula US Navy. Grasa saludable: 6–17 %. FFMI natural: &lt;25 kg/m².</p>
-          <p><span class="faq-tag-female">♀ Mujer</span> usa: <em>cintura, cuello y cadera</em> para la fórmula US Navy (la cadera es obligatoria). Grasa saludable: 14–24 %. FFMI natural: &lt;22 kg/m².</p>
-          <p>Las diferencias reflejan la distribución natural de grasa: las mujeres almacenan más en zona glúteo-femoral, mientras que los hombres lo hacen en zona abdominal. Los rangos de referencia de todos los indicadores están adaptados según el sexo biológico.</p>
-        </div>
-      </div>
-    </div>
-
-  </section>
 
   </div>
 
@@ -971,8 +906,139 @@
         <span class="wizard-step-label" id="wizard-step-label">1 / 5</span>
       </div>
 
+      <!-- ── Step 0: Welcome + Language + FAQ ── -->
+      <div class="wizard-step active" data-step="0" id="wstep-0">
+        <div class="wstep-emoji">💪</div>
+        <h2 class="wstep-question" data-i18n="welcome_title">Fitness Tools</h2>
+        <p class="wstep-sub" data-i18n="subtitle">Composición corporal y distribución de macronutrientes</p>
+
+        <!-- Language selector -->
+        <nav class="lang-selector no-print" aria-label="Language / Idioma">
+          <a href="/?lang=es" class="lang-btn" data-lang="es" title="Español"    onclick="event.preventDefault(); setLang('es')">🇪🇸</a>
+          <a href="/?lang=en" class="lang-btn" data-lang="en" title="English"    onclick="event.preventDefault(); setLang('en')">🇬🇧</a>
+          <a href="/?lang=it" class="lang-btn" data-lang="it" title="Italiano"   onclick="event.preventDefault(); setLang('it')">🇮🇹</a>
+          <a href="/?lang=fr" class="lang-btn" data-lang="fr" title="Français"   onclick="event.preventDefault(); setLang('fr')">🇫🇷</a>
+          <a href="/?lang=de" class="lang-btn" data-lang="de" title="Deutsch"    onclick="event.preventDefault(); setLang('de')">🇩🇪</a>
+          <a href="/?lang=pt" class="lang-btn" data-lang="pt" title="Português"  onclick="event.preventDefault(); setLang('pt')">🇵🇹</a>
+          <a href="/?lang=nl" class="lang-btn" data-lang="nl" title="Nederlands" onclick="event.preventDefault(); setLang('nl')">🇳🇱</a>
+          <a href="/?lang=pl" class="lang-btn" data-lang="pl" title="Polski"     onclick="event.preventDefault(); setLang('pl')">🇵🇱</a>
+          <a href="/?lang=ru" class="lang-btn" data-lang="ru" title="Русский"    onclick="event.preventDefault(); setLang('ru')">🇷🇺</a>
+          <a href="/?lang=zh" class="lang-btn" data-lang="zh" title="中文"        onclick="event.preventDefault(); setLang('zh')">🇨🇳</a>
+          <a href="/?lang=ja" class="lang-btn" data-lang="ja" title="日本語"      onclick="event.preventDefault(); setLang('ja')">🇯🇵</a>
+        </nav>
+
+        <!-- FAQ Section -->
+        <section class="faq-section no-print" aria-label="FAQ">
+          <div class="faq-section-heading">
+            <span style="font-size:1.3rem;">❓</span>
+            <h2 data-i18n="faq_title">Preguntas frecuentes — ¿Cómo funcionan las fórmulas?</h2>
+          </div>
+
+          <!-- Q1: US Navy -->
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span class="faq-question-text" data-i18n="faq_q1">¿Qué es la fórmula US Navy y cómo calcula la grasa corporal?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <p>La fórmula <strong>US Navy</strong> estima el porcentaje de grasa corporal usando medidas de circunferencia corporal y la altura, sin necesidad de equipos especiales.</p>
+                <p><span class="faq-tag-male">♂ Hombre:</span><br>
+                  <span class="faq-formula">%GC = 495 / (1.0324 − 0.19077 × log₁₀(cintura − cuello) + 0.15456 × log₁₀(altura)) − 450</span>
+                </p>
+                <p><span class="faq-tag-female">♀ Mujer:</span> requiere la medida de <strong>cadera</strong> adicionalmente.<br>
+                  <span class="faq-formula">%GC = 495 / (1.29579 − 0.35004 × log₁₀(cintura + cadera − cuello) + 0.22100 × log₁₀(altura)) − 450</span>
+                </p>
+                <p>Las mujeres acumulan más grasa en la zona de la cadera, por eso esa medida es obligatoria en su fórmula. Los rangos saludables son: <span class="faq-tag-male">♂ 6–17 %</span> y <span class="faq-tag-female">♀ 14–24 %</span>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q2: Lean Mass -->
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span class="faq-question-text" data-i18n="faq_q2">¿Qué es la masa magra y cómo se calcula?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <p>La <strong>masa magra</strong> (Lean Body Mass) es todo lo que no es grasa: músculos, huesos, agua y órganos. Es el indicador clave del rendimiento deportivo.</p>
+                <p><span class="faq-formula">Masa grasa (kg) = Peso × (%GC / 100)</span></p>
+                <p><span class="faq-formula">Masa magra (kg) = Peso − Masa grasa</span></p>
+                <p>No hay diferencia de fórmula entre <span class="faq-tag-male">♂</span> y <span class="faq-tag-female">♀</span>, pero los valores normales difieren: los hombres suelen tener mayor proporción de masa magra.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q3: IMC/BMI -->
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span class="faq-question-text" data-i18n="faq_q3">¿Qué es el IMC (Índice de Masa Corporal)?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <p>El <strong>IMC</strong> mide el peso relativo a la talla. No distingue grasa de músculo, por lo que es orientativo.</p>
+                <p><span class="faq-formula">IMC = Peso (kg) / Altura (m)²</span></p>
+                <p>Clasificación OMS (igual para <span class="faq-tag-male">♂</span> y <span class="faq-tag-female">♀</span>): &lt;18.5 Bajo peso · 18.5–24.9 Normal · 25–29.9 Sobrepeso · ≥30 Obesidad.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q4: FFMI -->
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span class="faq-question-text" data-i18n="faq_q4">¿Qué es el FFMI y por qué varía entre hombres y mujeres?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <p>El <strong>FFMI</strong> (Fat-Free Mass Index) mide la masa muscular relativa a la estatura. Es más preciso que el IMC para deportistas.</p>
+                <p><span class="faq-formula">FFMI = Masa magra (kg) / Altura (m)²</span></p>
+                <p><span class="faq-formula">FFMI normalizado = FFMI + 6.1 × (1.80 − Altura m)</span></p>
+                <p>Los límites naturales difieren por hormonas: <span class="faq-tag-male">♂ &lt;25 kg/m²</span> · <span class="faq-tag-female">♀ &lt;22 kg/m²</span>. Valores superiores pueden indicar uso de sustancias.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q5: Macros -->
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span class="faq-question-text" data-i18n="faq_q5">¿Cómo se distribuyen los macronutrientes?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <p>Los macros se calculan con valores fijos por kg de peso, optimizados para rendimiento deportivo:</p>
+                <p><span class="faq-formula">Proteína = Peso × 2.0 g/kg → × 4 kcal/g</span></p>
+                <p><span class="faq-formula">Grasa = Peso × 0.8 g/kg → × 9 kcal/g</span></p>
+                <p><span class="faq-formula">Carbohidratos = (Calorías totales − kcal proteína − kcal grasa) / 4</span></p>
+                <p>La misma fórmula aplica a <span class="faq-tag-male">♂</span> y <span class="faq-tag-female">♀</span>, aunque las necesidades calóricas totales suelen diferir según el metabolismo basal.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Q6: Male vs Female differences -->
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false" onclick="toggleFaq(this)">
+              <span class="faq-question-text" data-i18n="faq_q6">¿Cuáles son las diferencias principales entre hombres y mujeres en esta calculadora?</span>
+              <span class="faq-chevron">▼</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <p><span class="faq-tag-male">♂ Hombre</span> usa: <em>cintura y cuello</em> para la fórmula US Navy. Grasa saludable: 6–17 %. FFMI natural: &lt;25 kg/m².</p>
+                <p><span class="faq-tag-female">♀ Mujer</span> usa: <em>cintura, cuello y cadera</em> para la fórmula US Navy (la cadera es obligatoria). Grasa saludable: 14–24 %. FFMI natural: &lt;22 kg/m².</p>
+                <p>Las diferencias reflejan la distribución natural de grasa: las mujeres almacenan más en zona glúteo-femoral, mientras que los hombres lo hacen en zona abdominal. Los rangos de referencia de todos los indicadores están adaptados según el sexo biológico.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <button type="button" class="btn-next-solo" onclick="wizardGoTo(1)" data-i18n="btn_start">🚀 Comenzar →</button>
+      </div>
+
       <!-- ── Step 1: Gender ── -->
-      <div class="wizard-step active" data-step="1" id="wstep-1">
+      <div class="wizard-step" data-step="1" id="wstep-1">
         <div class="wstep-emoji">👤</div>
         <h2 class="wstep-question" data-i18n="step1_title">¿Cuál es tu sexo biológico?</h2>
         <p class="wstep-sub" data-i18n="step1_sub">Necesario para la fórmula US Navy</p>
@@ -992,7 +1058,10 @@
             </div>
           </label>
         </div>
-        <button type="button" class="btn-next-solo" onclick="wizardGoTo(2)" data-i18n="btn_next">Siguiente →</button>
+        <div class="wstep-nav">
+          <button type="button" class="btn-back" onclick="wizardGoTo(0)" data-i18n="btn_back">← Atrás</button>
+          <button type="button" class="btn-next" onclick="wizardGoTo(2)" data-i18n="btn_next">Siguiente →</button>
+        </div>
       </div>
 
       <!-- ── Step 2: Weight + Height ── -->
@@ -1299,6 +1368,8 @@
         p_hip: "ej. 95.0", p_bicep: "ej. 35.0", p_quad: "ej. 55.0",
         p_calf: "ej. 37.0", p_chest: "ej. 100.0",
         btn_next: "Siguiente →", btn_back: "← Atrás",
+        btn_start: "🚀 Comenzar →",
+        welcome_title: "Bienvenido/a",
         step1_title: "¿Cuál es tu sexo biológico?",
         step1_sub: "Necesario para la fórmula US Navy",
         step2_title: "Tu peso y altura",
@@ -1359,9 +1430,23 @@
         p_calories: "e.g. 3343", p_weight: "e.g. 72.5", p_height: "e.g. 175.5",
         p_waist: "e.g. 84.0", p_neck: "e.g. 38.0", p_fat_pct: "e.g. 14.5",
         p_hip: "e.g. 95.0", p_bicep: "e.g. 35.0", p_quad: "e.g. 55.0",
-        p_calf: "e.g. 37.0", p_chest: "e.g. 100.0"
+        p_calf: "e.g. 37.0", p_chest: "e.g. 100.0",
+        btn_next: "Next →", btn_back: "← Back",
+        btn_start: "🚀 Start →",
+        welcome_title: "Welcome",
+        step1_title: "What is your biological sex?",
+        step1_sub: "Required for the US Navy formula",
+        step2_title: "Your weight and height",
+        step2_sub: "Drag the slider or use the + / − buttons",
+        step3_title: "Circumference measurements",
+        step3_sub: "Measure at the narrowest / lowest point",
+        step4_title: "Daily calories",
+        step4_sub: "Total daily energy expenditure (TDEE)",
+        step5_title: "Additional measurements",
+        step5_sub: "Add more data for a more complete analysis or skip directly.",
+        preset_sedentary: "Sedentary", preset_moderate: "Moderate",
+        preset_active: "Active", preset_very_active: "Very active"
       },
-      it: {
         subtitle: "Composizione corporea e distribuzione dei macronutrienti",
         err_title: "Errore",
         male: "Uomo", female: "Donna",
@@ -1408,9 +1493,9 @@
         p_calories: "es. 3343", p_weight: "es. 72.5", p_height: "es. 175.5",
         p_waist: "es. 84.0", p_neck: "es. 38.0", p_fat_pct: "es. 14.5",
         p_hip: "es. 95.0", p_bicep: "es. 35.0", p_quad: "es. 55.0",
-        p_calf: "es. 37.0", p_chest: "es. 100.0"
+        p_calf: "es. 37.0", p_chest: "es. 100.0",
+        btn_start: "🚀 Inizia →", welcome_title: "Benvenuto/a"
       },
-      fr: {
         subtitle: "Composition corporelle et distribution des macronutriments",
         err_title: "Erreur",
         male: "Homme", female: "Femme",
@@ -1457,7 +1542,8 @@
         p_calories: "ex. 3343", p_weight: "ex. 72.5", p_height: "ex. 175.5",
         p_waist: "ex. 84.0", p_neck: "ex. 38.0", p_fat_pct: "ex. 14.5",
         p_hip: "ex. 95.0", p_bicep: "ex. 35.0", p_quad: "ex. 55.0",
-        p_calf: "ex. 37.0", p_chest: "ex. 100.0"
+        p_calf: "ex. 37.0", p_chest: "ex. 100.0",
+        btn_start: "🚀 Commencer →", welcome_title: "Bienvenue"
       },
       de: {
         subtitle: "Körperzusammensetzung und Makronährstoffverteilung",
@@ -1506,7 +1592,8 @@
         p_calories: "z.B. 3343", p_weight: "z.B. 72,5", p_height: "z.B. 175,5",
         p_waist: "z.B. 84,0", p_neck: "z.B. 38,0", p_fat_pct: "z.B. 14,5",
         p_hip: "z.B. 95,0", p_bicep: "z.B. 35,0", p_quad: "z.B. 55,0",
-        p_calf: "z.B. 37,0", p_chest: "z.B. 100,0"
+        p_calf: "z.B. 37,0", p_chest: "z.B. 100,0",
+        btn_start: "🚀 Loslegen →", welcome_title: "Willkommen"
       },
       pt: {
         subtitle: "Composição corporal e distribuição de macronutrientes",
@@ -1555,7 +1642,8 @@
         p_calories: "ex. 3343", p_weight: "ex. 72,5", p_height: "ex. 175,5",
         p_waist: "ex. 84,0", p_neck: "ex. 38,0", p_fat_pct: "ex. 14,5",
         p_hip: "ex. 95,0", p_bicep: "ex. 35,0", p_quad: "ex. 55,0",
-        p_calf: "ex. 37,0", p_chest: "ex. 100,0"
+        p_calf: "ex. 37,0", p_chest: "ex. 100,0",
+        btn_start: "🚀 Começar →", welcome_title: "Bem-vindo/a"
       },
       nl: {
         subtitle: "Lichaamssamenstelling en verdeling van macronutriënten",
@@ -1604,7 +1692,8 @@
         p_calories: "bijv. 3343", p_weight: "bijv. 72,5", p_height: "bijv. 175,5",
         p_waist: "bijv. 84,0", p_neck: "bijv. 38,0", p_fat_pct: "bijv. 14,5",
         p_hip: "bijv. 95,0", p_bicep: "bijv. 35,0", p_quad: "bijv. 55,0",
-        p_calf: "bijv. 37,0", p_chest: "bijv. 100,0"
+        p_calf: "bijv. 37,0", p_chest: "bijv. 100,0",
+        btn_start: "🚀 Starten →", welcome_title: "Welkom"
       },
       pl: {
         subtitle: "Skład ciała i rozkład makroskładników",
@@ -1653,7 +1742,8 @@
         p_calories: "np. 3343", p_weight: "np. 72,5", p_height: "np. 175,5",
         p_waist: "np. 84,0", p_neck: "np. 38,0", p_fat_pct: "np. 14,5",
         p_hip: "np. 95,0", p_bicep: "np. 35,0", p_quad: "np. 55,0",
-        p_calf: "np. 37,0", p_chest: "np. 100,0"
+        p_calf: "np. 37,0", p_chest: "np. 100,0",
+        btn_start: "🚀 Zacznij →", welcome_title: "Witaj"
       },
       ru: {
         subtitle: "Состав тела и распределение макронутриентов",
@@ -1702,7 +1792,8 @@
         p_calories: "напр. 3343", p_weight: "напр. 72,5", p_height: "напр. 175,5",
         p_waist: "напр. 84,0", p_neck: "напр. 38,0", p_fat_pct: "напр. 14,5",
         p_hip: "напр. 95,0", p_bicep: "напр. 35,0", p_quad: "напр. 55,0",
-        p_calf: "напр. 37,0", p_chest: "напр. 100,0"
+        p_calf: "напр. 37,0", p_chest: "напр. 100,0",
+        btn_start: "🚀 Начать →", welcome_title: "Добро пожаловать"
       },
       zh: {
         subtitle: "身体成分与宏量营养素分配",
@@ -1751,7 +1842,8 @@
         p_calories: "例: 3343", p_weight: "例: 72.5", p_height: "例: 175.5",
         p_waist: "例: 84.0", p_neck: "例: 38.0", p_fat_pct: "例: 14.5",
         p_hip: "例: 95.0", p_bicep: "例: 35.0", p_quad: "例: 55.0",
-        p_calf: "例: 37.0", p_chest: "例: 100.0"
+        p_calf: "例: 37.0", p_chest: "例: 100.0",
+        btn_start: "🚀 开始 →", welcome_title: "欢迎"
       },
       ja: {
         subtitle: "体組成とマクロ栄養素の分配",
@@ -1800,7 +1892,8 @@
         p_calories: "例: 3343", p_weight: "例: 72.5", p_height: "例: 175.5",
         p_waist: "例: 84.0", p_neck: "例: 38.0", p_fat_pct: "例: 14.5",
         p_hip: "例: 95.0", p_bicep: "例: 35.0", p_quad: "例: 55.0",
-        p_calf: "例: 37.0", p_chest: "例: 100.0"
+        p_calf: "例: 37.0", p_chest: "例: 100.0",
+        btn_start: "🚀 始める →", welcome_title: "ようこそ"
       }
     };
 
@@ -2478,7 +2571,7 @@
     'use strict';
 
     var TOTAL_STEPS = 5;
-    var currentStep = 1;
+    var currentStep = 0;
     var goingForward = true;
 
     var SLIDER_CONFIGS = {
@@ -2492,6 +2585,8 @@
 
     /* ── Update progress dots ── */
     function updateProgress() {
+      var progressEl = document.getElementById('wizard-progress');
+      if (progressEl) progressEl.style.visibility = (currentStep === 0) ? 'hidden' : '';
       var dotsEl  = document.getElementById('wizard-dots');
       var labelEl = document.getElementById('wizard-step-label');
       if (dotsEl) {
@@ -2577,7 +2672,7 @@
 
     /* ── Navigate to a specific step ── */
     window.wizardGoTo = function (step) {
-      if (step < 1 || step > TOTAL_STEPS || step === currentStep) return;
+      if (step < 0 || step > TOTAL_STEPS || step === currentStep) return;
       updateHipVisibility();
 
       var fromEl = document.getElementById('wstep-' + currentStep);
