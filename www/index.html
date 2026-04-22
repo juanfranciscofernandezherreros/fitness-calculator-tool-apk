@@ -2720,8 +2720,32 @@
 
         html2pdf().set(opciones).from(elemento).output('blob').then(function (blob) {
           var filename = 'informe-fitness.pdf';
-          /* Use the File System Access API to let the user pick a save location */
+
+          /* Share-sheet picker: open the system share sheet so the user can
+             choose any destination (Files, Drive, email, etc.).
+             Falls back to automatic download if sharing is unsupported or
+             the user dismisses without choosing. */
+          function shareOrDownload(b, fname) {
+            var file = new File([b], fname, { type: 'application/pdf' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({ files: [file], title: fname })
+                .then(function () { resetBtn(); })
+                .catch(function (err) {
+                  if (err && err.name === 'AbortError') {
+                    /* User dismissed the share sheet — treat as cancel */
+                    resetBtn();
+                  } else {
+                    /* Unexpected error — fall back to automatic download */
+                    triggerDownload(b, fname);
+                  }
+                });
+            } else {
+              triggerDownload(b, fname);
+            }
+          }
+
           if (typeof window.showSaveFilePicker === 'function') {
+            /* Desktop browsers: File System Access API lets the user pick a save location */
             window.showSaveFilePicker({
               suggestedName: filename,
               types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }]
@@ -2738,13 +2762,14 @@
                 /* User dismissed the dialog — treat as cancel */
                 resetBtn();
               } else {
-                /* Unexpected error — fall back to automatic download */
-                triggerDownload(blob, filename);
+                /* Unexpected error — try share sheet, then auto-download */
+                shareOrDownload(blob, filename);
               }
             });
           } else {
-            /* Browser does not support showSaveFilePicker — use automatic download */
-            triggerDownload(blob, filename);
+            /* Mobile / Android WebView: use the share sheet so the user can
+               pick the destination; auto-download is the final fallback */
+            shareOrDownload(blob, filename);
           }
         }).catch(resetBtn);
       } catch (err) { resetBtn(err); }
