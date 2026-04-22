@@ -701,7 +701,7 @@
     /* ── FAQ inside wizard card (step 0, white background) ── */
     .wstep-0 .faq-section {
       width: 100%;
-      margin-top: 0;
+      margin-top: 1.4rem;
     }
     .wstep-0 .faq-section-heading {
       color: #374151;
@@ -1048,6 +1048,8 @@
         <h2 class="wstep-question" data-i18n="welcome_title">Fitness Tools</h2>
         <p class="wstep-sub" data-i18n="subtitle">Composición corporal y distribución de macronutrientes</p>
 
+        <button type="button" class="btn-next-solo" onclick="wizardGoTo(1)" data-i18n="btn_start">🚀 Comenzar →</button>
+
         <!-- FAQ Section -->
         <section class="faq-section no-print" aria-label="FAQ">
           <div class="faq-section-heading">
@@ -1154,8 +1156,6 @@
             </div>
           </div>
         </section>
-
-        <button type="button" class="btn-next-solo" onclick="wizardGoTo(1)" data-i18n="btn_start">🚀 Comenzar →</button>
       </div>
 
       <!-- ── Step 1: Gender ── -->
