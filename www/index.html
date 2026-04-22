@@ -45,6 +45,18 @@
       width: 100%;
       max-width: 660px;
     }
+    .header-logo {
+      display: block;
+      margin: 0 auto 1rem;
+      width: 96px;
+      height: 96px;
+      filter: drop-shadow(0 4px 14px rgba(102,62,162,.5));
+      animation: logo-float 3.6s ease-in-out infinite;
+    }
+    @keyframes logo-float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
     .header h1 {
       font-size: 2.2rem;
       font-weight: 800;
@@ -947,6 +959,7 @@
   </div>
 
   <div class="header">
+    <img src="img/logo.svg" alt="Fitness Tools Logo" class="header-logo no-print" />
     <h1>Fitness Tools 💪</h1>
     <p data-i18n="subtitle">Composición corporal y distribución de macronutrientes</p>
     <!-- ── Language selector ── -->
