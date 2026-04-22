@@ -6,7 +6,8 @@
   "author": "ChatGPT",
   "license": "MIT",
   "scripts": {
-    "screenshots": "node scripts/take-screenshots.js"
+    "screenshots": "node scripts/take-screenshots.js",
+    "test:pdf": "node scripts/test_pdf.js"
   },
   "devDependencies": {
     "cordova-android": "^14.0.1",
