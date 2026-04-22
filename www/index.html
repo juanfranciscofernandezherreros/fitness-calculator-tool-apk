@@ -2674,8 +2674,8 @@
             scale: 2, useCORS: true, allowTaint: false, logging: false,
             backgroundColor: '#ffffff',
             scrollX: 0, scrollY: 0,
-            windowWidth:  document.documentElement.scrollWidth,
-            windowHeight: document.documentElement.scrollHeight,
+            windowWidth:  Math.max(document.documentElement.scrollWidth, document.documentElement.offsetWidth, document.body ? document.body.scrollWidth : 0),
+            windowHeight: Math.max(document.documentElement.scrollHeight, document.documentElement.offsetHeight, document.body ? document.body.scrollHeight : 0),
             onclone: function (clonedDoc) {
               var resultsEl = clonedDoc.getElementById('results-container');
               if (!resultsEl) return;
@@ -2769,7 +2769,10 @@
       var contenido = document.getElementById('contenido-informe');
       if (overlay && viewerBody && contenido) {
         /* Render the report as HTML in the viewer — works on all platforms
-           including Android WebView which cannot display PDF blob URLs in iframes. */
+           including Android WebView which cannot display PDF blob URLs in iframes.
+           The source element is built entirely by buildResultsHTML() which
+           HTML-escapes all user-supplied values via esc(), so cloning its
+           outerHTML into a sandboxed viewer div is safe. */
         viewerBody.innerHTML = contenido.outerHTML;
         overlay.style.display = 'flex';
         /* Close the confirmation modal */
