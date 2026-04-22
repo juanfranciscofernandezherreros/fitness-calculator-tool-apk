@@ -1055,7 +1055,7 @@
       <button type="button" class="btn-pdf-viewer-download" id="btn-viewer-download"
               onclick="descargarPDF()" aria-label="Descargar PDF">⬇ PDF</button>
       <button type="button" class="btn-pdf-viewer-share" id="btn-viewer-share"
-              onclick="descargarPDF()" aria-label="Compartir PDF">📤 <span data-i18n="btn_share_pdf">Compartir</span></button>
+              onclick="descargarPDF()">📤 <span data-i18n="btn_share_pdf">Compartir</span></button>
       <button type="button" class="btn-pdf-viewer-close" onclick="closePdfViewer()" aria-label="Cerrar visor">&times;</button>
     </div>
     <div id="pdf-viewer-body" class="pdf-viewer-body"></div>
@@ -2903,8 +2903,13 @@
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             return navigator.share({ files: [file], title: 'informe-fitness.pdf' });
           }
-          /* Web Share API available but file sharing not supported — share URL or text */
-          return navigator.share({ title: 'Informe Fitness', text: 'informe-fitness.pdf' });
+          /* File sharing not supported — fall back to download */
+          var a = document.createElement('a');
+          a.href = _pdfBlobUrl;
+          a.download = 'informe-fitness.pdf';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
         }).then(done).catch(function (err) {
           done();
           if (!err || err.name !== 'AbortError') {
