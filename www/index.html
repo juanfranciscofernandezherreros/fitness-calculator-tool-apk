@@ -2741,6 +2741,7 @@
 
     /* ── PDF done modal ── */
     var _pdfBlobUrl = null;
+    var _pdfViewerUrl = null;
 
     window.showPdfDoneModal = function (blobUrl) {
       _pdfBlobUrl = blobUrl;
@@ -2760,13 +2761,19 @@
       var iframe = document.getElementById('pdf-viewer-iframe');
       var overlay = document.getElementById('pdf-viewer-overlay');
       if (iframe && overlay) {
-        iframe.src = _pdfBlobUrl;
+        /* Transfer ownership to the viewer: keep the URL alive until
+           closePdfViewer() is called, then revoke it there. */
+        _pdfViewerUrl = _pdfBlobUrl;
+        _pdfBlobUrl = null;
+        iframe.src = _pdfViewerUrl;
         overlay.style.display = 'flex';
         /* Close the confirmation modal without revoking the URL —
            the iframe still needs the blob to be alive. */
         var modal = document.getElementById('pdf-done-modal');
         if (modal) modal.style.display = 'none';
-        _pdfBlobUrl = null; /* iframe already holds the reference */
+        /* Move focus to the close button for keyboard / screen-reader users. */
+        var closeBtn = overlay.querySelector('.btn-pdf-viewer-close');
+        if (closeBtn) closeBtn.focus();
       } else {
         /* Fallback for desktop browsers */
         window.open(_pdfBlobUrl, '_blank');
@@ -2779,6 +2786,8 @@
       var iframe = document.getElementById('pdf-viewer-iframe');
       if (overlay) overlay.style.display = 'none';
       if (iframe) iframe.src = '';
+      /* Revoke the blob URL now that the viewer is closed. */
+      if (_pdfViewerUrl) { URL.revokeObjectURL(_pdfViewerUrl); _pdfViewerUrl = null; }
     };
 
     /* Expose buildResultsHTML so we can embed the data JSON for PDF */
