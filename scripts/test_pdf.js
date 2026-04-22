@@ -18,7 +18,6 @@
 
 const { chromium } = require('playwright');
 const path  = require('path');
-const fs    = require('fs');
 
 const ROOT       = path.resolve(__dirname, '..');
 const INDEX_HTML = path.join(ROOT, 'www', 'index.html');
@@ -110,7 +109,7 @@ function sleep(ms) {
   await sleep(1000); // let the 800 ms setTimeout fire
   const viewerVisible = await page.$eval(
     '#pdf-viewer-overlay',
-    el => el.style.display === 'flex' || el.style.display === ''
+    el => window.getComputedStyle(el).display !== 'none'
   ).catch(() => false);
   assert(viewerVisible, 'PDF viewer overlay is visible after calculation');
 

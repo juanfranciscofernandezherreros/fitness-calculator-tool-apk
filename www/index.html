@@ -2664,7 +2664,9 @@
           if (typeof applyTranslations === 'function') applyTranslations();
           container.scrollIntoView({ behavior: 'smooth', block: 'start' });
           requestAnimationFrame(function () { initCharts(resultados); });
-          /* Auto-open the report viewer once charts have had time to render */
+          /* Auto-open the report viewer once charts have had time to render.
+             800 ms gives Chart.js enough time to finish drawing all canvases
+             before openPdf() clones the report HTML into the viewer body. */
           setTimeout(function () {
             if (typeof openPdf === 'function') openPdf();
           }, 800);
