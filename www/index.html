@@ -2843,12 +2843,38 @@
       var viewerBody = document.getElementById('pdf-viewer-body');
       var contenido = document.getElementById('contenido-informe');
       if (overlay && viewerBody && contenido) {
+        /* Capture chart canvases as images before cloning — canvas pixel
+           data is not serialised by outerHTML so the charts would appear
+           blank without this step. */
+        var chartIds = ['chart-grasa', 'chart-imc', 'chart-ffmi', 'chart-macros'];
+        var chartImages = {};
+        chartIds.forEach(function (id) {
+          var canvas = document.getElementById(id);
+          if (canvas && canvas.tagName === 'CANVAS') {
+            try { chartImages[id] = canvas.toDataURL('image/png'); } catch (e) { console.warn('No se pudo capturar el gráfico ' + id + ':', e); }
+          }
+        });
+
+        /* Clone the report and replace canvases with the captured images */
+        var clone = contenido.cloneNode(true);
+        chartIds.forEach(function (id) {
+          if (!chartImages[id]) return;
+          var canvas = clone.querySelector('#' + id);
+          if (!canvas) return;
+          var container = canvas.parentElement;
+          if (!container) return;
+          var img = document.createElement('img');
+          img.src = chartImages[id];
+          img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
+          container.replaceChild(img, canvas);
+        });
+
         /* Render the report as HTML in the viewer — works on all platforms
            including Android WebView which cannot display PDF blob URLs in iframes.
            The source element is built entirely by buildResultsHTML() which
            HTML-escapes all user-supplied values via esc(), so cloning its
            outerHTML into a sandboxed viewer div is safe. */
-        viewerBody.innerHTML = contenido.outerHTML;
+        viewerBody.innerHTML = clone.outerHTML;
         overlay.style.display = 'flex';
         /* Close the confirmation modal */
         var modal = document.getElementById('pdf-done-modal');
