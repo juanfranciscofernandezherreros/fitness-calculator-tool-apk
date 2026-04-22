@@ -5,10 +5,14 @@
   "description": "Fitness Tools — calculadora de composición corporal para Android e iOS",
   "author": "ChatGPT",
   "license": "MIT",
+  "scripts": {
+    "screenshots": "node scripts/take-screenshots.js"
+  },
   "devDependencies": {
     "cordova-android": "^14.0.1",
     "cordova-ios": "^7.1.1",
-    "cordova-plugin-whitelist": "^1.3.5"
+    "cordova-plugin-whitelist": "^1.3.5",
+    "playwright": "^1.59.1"
   },
   "cordova": {
     "plugins": {
