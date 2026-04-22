@@ -2652,7 +2652,7 @@
               var dataEl = clonedDoc.getElementById('spa-result-data');
               if (!dataEl) return;
               var rd;
-              try { rd = JSON.parse(dataEl.textContent); } catch (e) { return; }
+              try { rd = JSON.parse(decodeURIComponent(dataEl.getAttribute('data-result') || '')); } catch (e) { return; }
               var sexo     = rd.pasos.navy_sexo;
               var grasaRef = sexo === 'hombre' ? { min: 6, max: 17 } : { min: 14, max: 24 };
               var ffmiRef  = sexo === 'hombre' ? { min: 17, max: 25 } : { min: 14, max: 22 };
@@ -2720,10 +2720,12 @@
     var _origBuild = buildResultsHTML;
     buildResultsHTML = function (r) {
       var html = _origBuild(r);
-      /* Append hidden JSON data element used by PDF onclone handler */
-      /* Escape <\/script> sequences to prevent early tag closure */
-      var safeJson = JSON.stringify(r).replace(/<\//g, '<\\/');
-      html += '<script id="spa-result-data" type="application/json">' + safeJson + '<\/script>';
+      /* Append hidden data element used by PDF onclone handler.
+         Use a <div> with a URI-encoded data attribute instead of
+         <script type="application/json"> to guarantee reliable
+         textContent across all browsers when inserted via innerHTML. */
+      html += '<div id="spa-result-data" style="display:none" data-result="' +
+              encodeURIComponent(JSON.stringify(r)) + '"></div>';
       return html;
     };
   })();
