@@ -486,6 +486,20 @@
       transition: opacity .2s;
     }
     .btn-pdf-finalize:hover { opacity: .9; }
+    .btn-pdf-share {
+      padding: .75rem 1.2rem;
+      background: #0891b2;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: .95rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity .2s;
+    }
+    .btn-pdf-share:hover { opacity: .9; }
+    .btn-pdf-share:disabled { opacity: .5; cursor: default; }
 
     /* ── In-app PDF viewer ── */
     .pdf-viewer-overlay {
@@ -523,6 +537,22 @@
     }
     .btn-pdf-viewer-download:hover { opacity: .85; }
     .btn-pdf-viewer-download:disabled { opacity: .5; cursor: default; }
+    .btn-pdf-viewer-share {
+      background: #0891b2;
+      border: none;
+      color: #fff;
+      font-size: .8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: .3rem .7rem;
+      margin-right: .5rem;
+      flex-shrink: 0;
+      transition: opacity .2s;
+      white-space: nowrap;
+    }
+    .btn-pdf-viewer-share:hover { opacity: .85; }
+    .btn-pdf-viewer-share:disabled { opacity: .5; cursor: default; }
     .btn-pdf-viewer-close {
       background: none;
       border: none;
@@ -1003,10 +1033,13 @@
     <div class="pdf-modal-box">
       <div class="pdf-modal-icon">📄</div>
       <h2 class="pdf-modal-title" id="pdf-modal-title" data-i18n="pdf_done_title">✅ PDF generado</h2>
-      <p class="pdf-modal-msg" data-i18n="pdf_done_msg">Tu informe PDF ha sido generado. Pulsa 'Abrir PDF' para verlo aquí o compártelo desde la hoja de compartir.</p>
+      <p class="pdf-modal-msg" data-i18n="pdf_done_msg">Tu informe PDF ha sido generado. Ábrelo aquí o compártelo directamente.</p>
       <div class="pdf-modal-actions">
         <button type="button" class="btn-pdf-open" onclick="openPdf()" aria-label="Abrir PDF">
           <span aria-hidden="true">📂 </span><span data-i18n="btn_open_pdf">Abrir PDF</span>
+        </button>
+        <button type="button" class="btn-pdf-share" id="btn-modal-share" onclick="sharePdf()" aria-label="Compartir PDF">
+          <span aria-hidden="true">📤 </span><span data-i18n="btn_share_pdf">Compartir PDF</span>
         </button>
         <button type="button" class="btn-pdf-finalize" onclick="closePdfModal()" aria-label="Finalizar">
           <span aria-hidden="true">✅ </span><span data-i18n="btn_finalize">Finalizar</span>
@@ -1021,6 +1054,8 @@
       <span class="pdf-viewer-title">📄 informe-fitness.pdf</span>
       <button type="button" class="btn-pdf-viewer-download" id="btn-viewer-download"
               onclick="descargarPDF()" aria-label="Descargar PDF">⬇ PDF</button>
+      <button type="button" class="btn-pdf-viewer-share" id="btn-viewer-share"
+              onclick="descargarPDF()" aria-label="Compartir PDF">📤 <span data-i18n="btn_share_pdf">Compartir</span></button>
       <button type="button" class="btn-pdf-viewer-close" onclick="closePdfViewer()" aria-label="Cerrar visor">&times;</button>
     </div>
     <div id="pdf-viewer-body" class="pdf-viewer-body"></div>
@@ -1485,8 +1520,9 @@
         btn_calculate: "🚀 Calcular mi análisis",
         btn_pdf: "📄 Descargar informe en PDF",
         pdf_done_title: "✅ PDF generado",
-        pdf_done_msg: "Tu informe PDF ha sido generado. Pulsa 'Abrir PDF' para verlo aquí o compártelo desde la hoja de compartir.",
+        pdf_done_msg: "Tu informe PDF ha sido generado. Ábrelo aquí o compártelo directamente.",
         btn_open_pdf: "Abrir PDF",
+        btn_share_pdf: "Compartir PDF",
         btn_finalize: "Finalizar",
         r_measurements: "Medidas corporales", r_body_comp: "Composición corporal (US Navy)",
         r_imc_ffmi: "IMC y FFMI", r_macros: "Macros del día",
@@ -1553,8 +1589,9 @@
         btn_calculate: "🚀 Calculate my analysis",
         btn_pdf: "📄 Download report as PDF",
         pdf_done_title: "✅ PDF generated",
-        pdf_done_msg: "Your PDF report has been generated. Tap 'Open PDF' to view it here or share it from the share sheet.",
+        pdf_done_msg: "Your PDF report has been generated. Open it here or share it directly.",
         btn_open_pdf: "Open PDF",
+        btn_share_pdf: "Share PDF",
         btn_finalize: "Finish",
         r_measurements: "Body measurements", r_body_comp: "Body composition (US Navy)",
         r_imc_ffmi: "BMI and FFMI", r_macros: "Daily macros",
@@ -1621,8 +1658,9 @@
         btn_calculate: "🚀 Calcola la mia analisi",
         btn_pdf: "📄 Scarica il report in PDF",
         pdf_done_title: "✅ PDF generato",
-        pdf_done_msg: "Il tuo report PDF è stato generato. Tocca 'Apri PDF' per visualizzarlo qui o condividilo dal pannello di condivisione.",
+        pdf_done_msg: "Il tuo report PDF è stato generato. Aprilo qui o condividilo direttamente.",
         btn_open_pdf: "Apri PDF",
+        btn_share_pdf: "Condividi PDF",
         btn_finalize: "Fine",
         r_measurements: "Misure corporee", r_body_comp: "Composizione corporea (US Navy)",
         r_imc_ffmi: "IMC e FFMI", r_macros: "Macro del giorno",
@@ -1676,8 +1714,9 @@
         btn_calculate: "🚀 Calculer mon analyse",
         btn_pdf: "📄 Télécharger le rapport en PDF",
         pdf_done_title: "✅ PDF généré",
-        pdf_done_msg: "Votre rapport PDF a été généré. Appuyez sur 'Ouvrir le PDF' pour le voir ici ou partagez-le depuis la feuille de partage.",
+        pdf_done_msg: "Votre rapport PDF a été généré. Ouvrez-le ici ou partagez-le directement.",
         btn_open_pdf: "Ouvrir le PDF",
+        btn_share_pdf: "Partager le PDF",
         btn_finalize: "Terminer",
         r_measurements: "Mesures corporelles", r_body_comp: "Composition corporelle (US Navy)",
         r_imc_ffmi: "IMC et FFMI", r_macros: "Macros du jour",
@@ -1731,8 +1770,9 @@
         btn_calculate: "🚀 Meine Analyse berechnen",
         btn_pdf: "📄 Bericht als PDF herunterladen",
         pdf_done_title: "✅ PDF erstellt",
-        pdf_done_msg: "Ihr PDF-Bericht wurde erstellt. Tippen Sie auf 'PDF öffnen', um ihn hier anzuzeigen, oder teilen Sie ihn über das Teilen-Menü.",
+        pdf_done_msg: "Ihr PDF-Bericht wurde erstellt. Öffnen Sie ihn hier oder teilen Sie ihn direkt.",
         btn_open_pdf: "PDF öffnen",
+        btn_share_pdf: "PDF teilen",
         btn_finalize: "Fertig",
         r_measurements: "Körpermaße", r_body_comp: "Körperzusammensetzung (US Navy)",
         r_imc_ffmi: "BMI und FFMI", r_macros: "Tages-Makros",
@@ -1786,8 +1826,9 @@
         btn_calculate: "🚀 Calcular minha análise",
         btn_pdf: "📄 Baixar relatório em PDF",
         pdf_done_title: "✅ PDF gerado",
-        pdf_done_msg: "O seu relatório PDF foi gerado. Toque em 'Abrir PDF' para o ver aqui ou partilhe-o a partir da folha de partilha.",
+        pdf_done_msg: "O seu relatório PDF foi gerado. Abra-o aqui ou partilhe-o diretamente.",
         btn_open_pdf: "Abrir PDF",
+        btn_share_pdf: "Partilhar PDF",
         btn_finalize: "Concluir",
         r_measurements: "Medidas corporais", r_body_comp: "Composição corporal (US Navy)",
         r_imc_ffmi: "IMC e FFMI", r_macros: "Macros do dia",
@@ -1841,8 +1882,9 @@
         btn_calculate: "🚀 Bereken mijn analyse",
         btn_pdf: "📄 Rapport downloaden als PDF",
         pdf_done_title: "✅ PDF gegenereerd",
-        pdf_done_msg: "Uw PDF-rapport is gegenereerd. Tik op 'PDF openen' om het hier te bekijken of deel het via het deelmenu.",
+        pdf_done_msg: "Uw PDF-rapport is gegenereerd. Open het hier of deel het direct.",
         btn_open_pdf: "PDF openen",
+        btn_share_pdf: "PDF delen",
         btn_finalize: "Voltooien",
         r_measurements: "Lichaamsmetingen", r_body_comp: "Lichaamssamenstelling (US Navy)",
         r_imc_ffmi: "BMI en FFMI", r_macros: "Dagelijkse macro's",
@@ -1896,8 +1938,9 @@
         btn_calculate: "🚀 Oblicz moją analizę",
         btn_pdf: "📄 Pobierz raport jako PDF",
         pdf_done_title: "✅ PDF wygenerowany",
-        pdf_done_msg: "Twój raport PDF został wygenerowany. Kliknij 'Otwórz PDF', aby go tutaj wyświetlić, lub udostępnij go z arkusza udostępniania.",
+        pdf_done_msg: "Twój raport PDF został wygenerowany. Otwórz go tutaj lub udostępnij bezpośrednio.",
         btn_open_pdf: "Otwórz PDF",
+        btn_share_pdf: "Udostępnij PDF",
         btn_finalize: "Zakończ",
         r_measurements: "Wymiary ciała", r_body_comp: "Skład ciała (US Navy)",
         r_imc_ffmi: "BMI i FFMI", r_macros: "Dzienne makroskładniki",
@@ -1951,8 +1994,9 @@
         btn_calculate: "🚀 Рассчитать мой анализ",
         btn_pdf: "📄 Скачать отчёт в PDF",
         pdf_done_title: "✅ PDF создан",
-        pdf_done_msg: "Ваш PDF-отчёт сгенерирован. Нажмите 'Открыть PDF', чтобы просмотреть его здесь, или поделитесь им через панель общего доступа.",
+        pdf_done_msg: "Ваш PDF-отчёт сгенерирован. Откройте его здесь или поделитесь напрямую.",
         btn_open_pdf: "Открыть PDF",
+        btn_share_pdf: "Поделиться PDF",
         btn_finalize: "Завершить",
         r_measurements: "Антропометрия", r_body_comp: "Состав тела (US Navy)",
         r_imc_ffmi: "ИМТ и FFMI", r_macros: "Макросы дня",
@@ -2006,8 +2050,9 @@
         btn_calculate: "🚀 计算我的分析",
         btn_pdf: "📄 下载PDF报告",
         pdf_done_title: "✅ PDF已生成",
-        pdf_done_msg: "您的PDF报告已生成。点击'打开PDF'在此处查看，或通过分享菜单分享。",
+        pdf_done_msg: "您的PDF报告已生成。在此处打开或直接分享。",
         btn_open_pdf: "打开PDF",
+        btn_share_pdf: "分享PDF",
         btn_finalize: "完成",
         r_measurements: "身体测量", r_body_comp: "身体成分（美国海军法）",
         r_imc_ffmi: "BMI 和 FFMI", r_macros: "每日宏量营养素",
@@ -2061,8 +2106,9 @@
         btn_calculate: "🚀 分析を計算する",
         btn_pdf: "📄 PDFレポートをダウンロード",
         pdf_done_title: "✅ PDF生成完了",
-        pdf_done_msg: "PDFレポートが生成されました。ここで表示するには「PDFを開く」をタップするか、共有メニューから共有してください。",
+        pdf_done_msg: "PDFレポートが生成されました。ここで開くか、直接共有してください。",
         btn_open_pdf: "PDFを開く",
+        btn_share_pdf: "PDFを共有",
         btn_finalize: "完了",
         r_measurements: "身体測定値", r_body_comp: "体組成（米海軍法）",
         r_imc_ffmi: "BMI と FFMI", r_macros: "1日のマクロ",
@@ -2681,12 +2727,15 @@
     window.descargarPDF = function () {
       var btn = document.getElementById('btn-descargar-pdf');
       var viewerBtn = document.getElementById('btn-viewer-download');
+      var viewerShareBtn = document.getElementById('btn-viewer-share');
       if (btn) { btn.disabled = true; btn.textContent = '\u23F3 Generando PDF\u2026'; }
       if (viewerBtn) { viewerBtn.disabled = true; viewerBtn.textContent = '\u23F3\u2026'; }
+      if (viewerShareBtn) { viewerShareBtn.disabled = true; }
 
       function resetBtn(err) {
         if (btn) { btn.disabled = false; btn.textContent = '\uD83D\uDCC4 Descargar informe en PDF'; }
         if (viewerBtn) { viewerBtn.disabled = false; viewerBtn.textContent = '\u2B07 PDF'; }
+        if (viewerShareBtn) { viewerShareBtn.disabled = false; }
         if (err) alert('No se pudo generar el PDF.\n' + (err.message || err));
       }
 
@@ -2836,6 +2885,48 @@
       var modal = document.getElementById('pdf-done-modal');
       if (modal) modal.style.display = 'none';
       if (_pdfBlobUrl) { URL.revokeObjectURL(_pdfBlobUrl); _pdfBlobUrl = null; }
+    };
+
+    window.sharePdf = function () {
+      var btn = document.getElementById('btn-modal-share');
+      if (btn) btn.disabled = true;
+      function done() { if (btn) btn.disabled = false; }
+      if (!_pdfBlobUrl) {
+        /* No blob stored — regenerate and share */
+        done();
+        descargarPDF();
+        return;
+      }
+      if (typeof navigator.share === 'function') {
+        fetch(_pdfBlobUrl).then(function (r) { return r.blob(); }).then(function (blob) {
+          var file = new File([blob], 'informe-fitness.pdf', { type: 'application/pdf' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            return navigator.share({ files: [file], title: 'informe-fitness.pdf' });
+          }
+          /* Web Share API available but file sharing not supported — share URL or text */
+          return navigator.share({ title: 'Informe Fitness', text: 'informe-fitness.pdf' });
+        }).then(done).catch(function (err) {
+          done();
+          if (!err || err.name !== 'AbortError') {
+            /* Unexpected error — fall back to a forced download */
+            var a = document.createElement('a');
+            a.href = _pdfBlobUrl;
+            a.download = 'informe-fitness.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+        });
+      } else {
+        /* Web Share API not available — trigger download */
+        var a = document.createElement('a');
+        a.href = _pdfBlobUrl;
+        a.download = 'informe-fitness.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        done();
+      }
     };
 
     window.openPdf = function () {
