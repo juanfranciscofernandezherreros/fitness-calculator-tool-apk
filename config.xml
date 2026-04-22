@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.example.hello" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>FitnessCalculcator</name>
+    <name>FitnessCalculator</name>
     <description>
         Proyecto Cordova básico "Hello World"
     </description>
@@ -12,7 +12,14 @@
     <allow-navigation href="*" />
     <allow-intent href="*" />
     <access origin="*" />
+    <icon src="res/android/icon.png" />
     <platform name="android">
+        <icon src="res/android/icon.png" density="ldpi" />
+        <icon src="res/android/icon.png" density="mdpi" />
+        <icon src="res/android/icon.png" density="hdpi" />
+        <icon src="res/android/icon.png" density="xhdpi" />
+        <icon src="res/android/icon.png" density="xxhdpi" />
+        <icon src="res/android/icon.png" density="xxxhdpi" />
         <resource-file src="res/android/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:networkSecurityConfig="@xml/network_security_config" xmlns:android="http://schemas.android.com/apk/res/android" />
