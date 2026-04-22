@@ -487,6 +487,43 @@
     }
     .btn-pdf-finalize:hover { opacity: .9; }
 
+    /* ── In-app PDF viewer ── */
+    .pdf-viewer-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+    }
+    .pdf-viewer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .6rem 1rem;
+      background: #1f2937;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .pdf-viewer-title { font-size: .95rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-pdf-viewer-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.6rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: .1rem .5rem;
+      margin-left: .75rem;
+      flex-shrink: 0;
+    }
+    .pdf-viewer-iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
     /* ── Formula report ── */
     .formula-report {
       margin-top: 2rem;
@@ -946,7 +983,7 @@
     <div class="pdf-modal-box">
       <div class="pdf-modal-icon">📄</div>
       <h2 class="pdf-modal-title" id="pdf-modal-title" data-i18n="pdf_done_title">✅ PDF generado</h2>
-      <p class="pdf-modal-msg" data-i18n="pdf_done_msg">Tu informe ha sido descargado correctamente.</p>
+      <p class="pdf-modal-msg" data-i18n="pdf_done_msg">Tu informe ha sido guardado en Descargas como 'informe-fitness.pdf'. Pulsa 'Abrir PDF' para verlo aquí.</p>
       <div class="pdf-modal-actions">
         <button type="button" class="btn-pdf-open" onclick="openPdf()" aria-label="Abrir PDF">
           <span aria-hidden="true">📂 </span><span data-i18n="btn_open_pdf">Abrir PDF</span>
@@ -956,6 +993,15 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- ── In-app PDF viewer ── -->
+  <div id="pdf-viewer-overlay" class="pdf-viewer-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Visor PDF">
+    <div class="pdf-viewer-header">
+      <span class="pdf-viewer-title">📄 informe-fitness.pdf</span>
+      <button type="button" class="btn-pdf-viewer-close" onclick="closePdfViewer()" aria-label="Cerrar visor">&times;</button>
+    </div>
+    <iframe id="pdf-viewer-iframe" class="pdf-viewer-iframe" src="" title="Visor de PDF"></iframe>
   </div>
 
   <div class="header">
@@ -1417,7 +1463,7 @@
         btn_calculate: "🚀 Calcular mi análisis",
         btn_pdf: "📄 Descargar informe en PDF",
         pdf_done_title: "✅ PDF generado",
-        pdf_done_msg: "Tu informe ha sido descargado correctamente.",
+        pdf_done_msg: "Tu informe ha sido guardado en Descargas como 'informe-fitness.pdf'. Pulsa 'Abrir PDF' para verlo aquí.",
         btn_open_pdf: "Abrir PDF",
         btn_finalize: "Finalizar",
         r_measurements: "Medidas corporales", r_body_comp: "Composición corporal (US Navy)",
@@ -1485,7 +1531,7 @@
         btn_calculate: "🚀 Calculate my analysis",
         btn_pdf: "📄 Download report as PDF",
         pdf_done_title: "✅ PDF generated",
-        pdf_done_msg: "Your report has been downloaded successfully.",
+        pdf_done_msg: "Your report has been saved to Downloads as 'informe-fitness.pdf'. Tap 'Open PDF' to view it here.",
         btn_open_pdf: "Open PDF",
         btn_finalize: "Finish",
         r_measurements: "Body measurements", r_body_comp: "Body composition (US Navy)",
@@ -1553,7 +1599,7 @@
         btn_calculate: "🚀 Calcola la mia analisi",
         btn_pdf: "📄 Scarica il report in PDF",
         pdf_done_title: "✅ PDF generato",
-        pdf_done_msg: "Il tuo report è stato scaricato correttamente.",
+        pdf_done_msg: "Il tuo report è stato salvato in Download come 'informe-fitness.pdf'. Tocca 'Apri PDF' per visualizzarlo qui.",
         btn_open_pdf: "Apri PDF",
         btn_finalize: "Fine",
         r_measurements: "Misure corporee", r_body_comp: "Composizione corporea (US Navy)",
@@ -1608,7 +1654,7 @@
         btn_calculate: "🚀 Calculer mon analyse",
         btn_pdf: "📄 Télécharger le rapport en PDF",
         pdf_done_title: "✅ PDF généré",
-        pdf_done_msg: "Votre rapport a été téléchargé avec succès.",
+        pdf_done_msg: "Votre rapport a été enregistré dans Téléchargements sous 'informe-fitness.pdf'. Appuyez sur 'Ouvrir le PDF' pour le voir ici.",
         btn_open_pdf: "Ouvrir le PDF",
         btn_finalize: "Terminer",
         r_measurements: "Mesures corporelles", r_body_comp: "Composition corporelle (US Navy)",
@@ -1663,7 +1709,7 @@
         btn_calculate: "🚀 Meine Analyse berechnen",
         btn_pdf: "📄 Bericht als PDF herunterladen",
         pdf_done_title: "✅ PDF erstellt",
-        pdf_done_msg: "Ihr Bericht wurde erfolgreich heruntergeladen.",
+        pdf_done_msg: "Ihr Bericht wurde als 'informe-fitness.pdf' in Downloads gespeichert. Tippen Sie auf 'PDF öffnen', um ihn hier anzuzeigen.",
         btn_open_pdf: "PDF öffnen",
         btn_finalize: "Fertig",
         r_measurements: "Körpermaße", r_body_comp: "Körperzusammensetzung (US Navy)",
@@ -1718,7 +1764,7 @@
         btn_calculate: "🚀 Calcular minha análise",
         btn_pdf: "📄 Baixar relatório em PDF",
         pdf_done_title: "✅ PDF gerado",
-        pdf_done_msg: "O seu relatório foi baixado com sucesso.",
+        pdf_done_msg: "O seu relatório foi guardado em Downloads como 'informe-fitness.pdf'. Toque em 'Abrir PDF' para o ver aqui.",
         btn_open_pdf: "Abrir PDF",
         btn_finalize: "Concluir",
         r_measurements: "Medidas corporais", r_body_comp: "Composição corporal (US Navy)",
@@ -1773,7 +1819,7 @@
         btn_calculate: "🚀 Bereken mijn analyse",
         btn_pdf: "📄 Rapport downloaden als PDF",
         pdf_done_title: "✅ PDF gegenereerd",
-        pdf_done_msg: "Uw rapport is succesvol gedownload.",
+        pdf_done_msg: "Uw rapport is opgeslagen in Downloads als 'informe-fitness.pdf'. Tik op 'PDF openen' om het hier te bekijken.",
         btn_open_pdf: "PDF openen",
         btn_finalize: "Voltooien",
         r_measurements: "Lichaamsmetingen", r_body_comp: "Lichaamssamenstelling (US Navy)",
@@ -1828,7 +1874,7 @@
         btn_calculate: "🚀 Oblicz moją analizę",
         btn_pdf: "📄 Pobierz raport jako PDF",
         pdf_done_title: "✅ PDF wygenerowany",
-        pdf_done_msg: "Twój raport został pomyślnie pobrany.",
+        pdf_done_msg: "Twój raport został zapisany w Pobrane jako 'informe-fitness.pdf'. Kliknij 'Otwórz PDF', aby go tutaj wyświetlić.",
         btn_open_pdf: "Otwórz PDF",
         btn_finalize: "Zakończ",
         r_measurements: "Wymiary ciała", r_body_comp: "Skład ciała (US Navy)",
@@ -1883,7 +1929,7 @@
         btn_calculate: "🚀 Рассчитать мой анализ",
         btn_pdf: "📄 Скачать отчёт в PDF",
         pdf_done_title: "✅ PDF создан",
-        pdf_done_msg: "Ваш отчёт успешно скачан.",
+        pdf_done_msg: "Ваш отчёт сохранён в папке Загрузки как 'informe-fitness.pdf'. Нажмите 'Открыть PDF', чтобы просмотреть его здесь.",
         btn_open_pdf: "Открыть PDF",
         btn_finalize: "Завершить",
         r_measurements: "Антропометрия", r_body_comp: "Состав тела (US Navy)",
@@ -1938,7 +1984,7 @@
         btn_calculate: "🚀 计算我的分析",
         btn_pdf: "📄 下载PDF报告",
         pdf_done_title: "✅ PDF已生成",
-        pdf_done_msg: "您的报告已成功下载。",
+        pdf_done_msg: "您的报告已保存到下载文件夹，文件名为 'informe-fitness.pdf'。点击"打开PDF"在此处查看。",
         btn_open_pdf: "打开PDF",
         btn_finalize: "完成",
         r_measurements: "身体测量", r_body_comp: "身体成分（美国海军法）",
@@ -1993,7 +2039,7 @@
         btn_calculate: "🚀 分析を計算する",
         btn_pdf: "📄 PDFレポートをダウンロード",
         pdf_done_title: "✅ PDF生成完了",
-        pdf_done_msg: "レポートが正常にダウンロードされました。",
+        pdf_done_msg: "レポートは 'informe-fitness.pdf' としてダウンロードに保存されました。ここで表示するには「PDFを開く」をタップしてください。",
         btn_open_pdf: "PDFを開く",
         btn_finalize: "完了",
         r_measurements: "身体測定値", r_body_comp: "体組成（米海軍法）",
@@ -2710,10 +2756,29 @@
     };
 
     window.openPdf = function () {
-      if (_pdfBlobUrl) {
+      if (!_pdfBlobUrl) return;
+      var iframe = document.getElementById('pdf-viewer-iframe');
+      var overlay = document.getElementById('pdf-viewer-overlay');
+      if (iframe && overlay) {
+        iframe.src = _pdfBlobUrl;
+        overlay.style.display = 'flex';
+        /* Close the confirmation modal without revoking the URL —
+           the iframe still needs the blob to be alive. */
+        var modal = document.getElementById('pdf-done-modal');
+        if (modal) modal.style.display = 'none';
+        _pdfBlobUrl = null; /* iframe already holds the reference */
+      } else {
+        /* Fallback for desktop browsers */
         window.open(_pdfBlobUrl, '_blank');
         closePdfModal();
       }
+    };
+
+    window.closePdfViewer = function () {
+      var overlay = document.getElementById('pdf-viewer-overlay');
+      var iframe = document.getElementById('pdf-viewer-iframe');
+      if (overlay) overlay.style.display = 'none';
+      if (iframe) iframe.src = '';
     };
 
     /* Expose buildResultsHTML so we can embed the data JSON for PDF */
