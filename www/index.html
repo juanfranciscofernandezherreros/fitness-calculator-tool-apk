@@ -936,11 +936,11 @@
       <h2 class="pdf-modal-title" id="pdf-modal-title" data-i18n="pdf_done_title">✅ PDF generado</h2>
       <p class="pdf-modal-msg" data-i18n="pdf_done_msg">Tu informe ha sido descargado correctamente.</p>
       <div class="pdf-modal-actions">
-        <button type="button" class="btn-pdf-open" onclick="openPdf()">
-          <span data-i18n="btn_open_pdf">📂 Abrir PDF</span>
+        <button type="button" class="btn-pdf-open" onclick="openPdf()" aria-label="Abrir PDF">
+          <span aria-hidden="true">📂 </span><span data-i18n="btn_open_pdf">Abrir PDF</span>
         </button>
-        <button type="button" class="btn-pdf-finalize" onclick="closePdfModal()">
-          <span data-i18n="btn_finalize">✅ Finalizar</span>
+        <button type="button" class="btn-pdf-finalize" onclick="closePdfModal()" aria-label="Finalizar">
+          <span aria-hidden="true">✅ </span><span data-i18n="btn_finalize">Finalizar</span>
         </button>
       </div>
     </div>
@@ -1405,8 +1405,8 @@
         btn_pdf: "📄 Descargar informe en PDF",
         pdf_done_title: "✅ PDF generado",
         pdf_done_msg: "Tu informe ha sido descargado correctamente.",
-        btn_open_pdf: "📂 Abrir PDF",
-        btn_finalize: "✅ Finalizar",
+        btn_open_pdf: "Abrir PDF",
+        btn_finalize: "Finalizar",
         r_measurements: "Medidas corporales", r_body_comp: "Composición corporal (US Navy)",
         r_imc_ffmi: "IMC y FFMI", r_macros: "Macros del día",
         r_body_fat: "Grasa corporal", r_lean_mass: "Masa magra",
@@ -1473,8 +1473,8 @@
         btn_pdf: "📄 Download report as PDF",
         pdf_done_title: "✅ PDF generated",
         pdf_done_msg: "Your report has been downloaded successfully.",
-        btn_open_pdf: "📂 Open PDF",
-        btn_finalize: "✅ Finish",
+        btn_open_pdf: "Open PDF",
+        btn_finalize: "Finish",
         r_measurements: "Body measurements", r_body_comp: "Body composition (US Navy)",
         r_imc_ffmi: "BMI and FFMI", r_macros: "Daily macros",
         r_body_fat: "Body fat", r_lean_mass: "Lean mass",
@@ -1541,8 +1541,8 @@
         btn_pdf: "📄 Scarica il report in PDF",
         pdf_done_title: "✅ PDF generato",
         pdf_done_msg: "Il tuo report è stato scaricato correttamente.",
-        btn_open_pdf: "📂 Apri PDF",
-        btn_finalize: "✅ Fine",
+        btn_open_pdf: "Apri PDF",
+        btn_finalize: "Fine",
         r_measurements: "Misure corporee", r_body_comp: "Composizione corporea (US Navy)",
         r_imc_ffmi: "IMC e FFMI", r_macros: "Macro del giorno",
         r_body_fat: "Grasso corporeo", r_lean_mass: "Massa magra",
@@ -1596,8 +1596,8 @@
         btn_pdf: "📄 Télécharger le rapport en PDF",
         pdf_done_title: "✅ PDF généré",
         pdf_done_msg: "Votre rapport a été téléchargé avec succès.",
-        btn_open_pdf: "📂 Ouvrir le PDF",
-        btn_finalize: "✅ Terminer",
+        btn_open_pdf: "Ouvrir le PDF",
+        btn_finalize: "Terminer",
         r_measurements: "Mesures corporelles", r_body_comp: "Composition corporelle (US Navy)",
         r_imc_ffmi: "IMC et FFMI", r_macros: "Macros du jour",
         r_body_fat: "Graisse corporelle", r_lean_mass: "Masse maigre",
@@ -1651,8 +1651,8 @@
         btn_pdf: "📄 Bericht als PDF herunterladen",
         pdf_done_title: "✅ PDF erstellt",
         pdf_done_msg: "Ihr Bericht wurde erfolgreich heruntergeladen.",
-        btn_open_pdf: "📂 PDF öffnen",
-        btn_finalize: "✅ Fertig",
+        btn_open_pdf: "PDF öffnen",
+        btn_finalize: "Fertig",
         r_measurements: "Körpermaße", r_body_comp: "Körperzusammensetzung (US Navy)",
         r_imc_ffmi: "BMI und FFMI", r_macros: "Tages-Makros",
         r_body_fat: "Körperfett", r_lean_mass: "Magermasse",
@@ -1706,8 +1706,8 @@
         btn_pdf: "📄 Baixar relatório em PDF",
         pdf_done_title: "✅ PDF gerado",
         pdf_done_msg: "O seu relatório foi baixado com sucesso.",
-        btn_open_pdf: "📂 Abrir PDF",
-        btn_finalize: "✅ Concluir",
+        btn_open_pdf: "Abrir PDF",
+        btn_finalize: "Concluir",
         r_measurements: "Medidas corporais", r_body_comp: "Composição corporal (US Navy)",
         r_imc_ffmi: "IMC e FFMI", r_macros: "Macros do dia",
         r_body_fat: "Gordura corporal", r_lean_mass: "Massa magra",
@@ -1761,8 +1761,8 @@
         btn_pdf: "📄 Rapport downloaden als PDF",
         pdf_done_title: "✅ PDF gegenereerd",
         pdf_done_msg: "Uw rapport is succesvol gedownload.",
-        btn_open_pdf: "📂 PDF openen",
-        btn_finalize: "✅ Voltooien",
+        btn_open_pdf: "PDF openen",
+        btn_finalize: "Voltooien",
         r_measurements: "Lichaamsmetingen", r_body_comp: "Lichaamssamenstelling (US Navy)",
         r_imc_ffmi: "BMI en FFMI", r_macros: "Dagelijkse macro's",
         r_body_fat: "Lichaamsvet", r_lean_mass: "Magere massa",
@@ -1816,8 +1816,8 @@
         btn_pdf: "📄 Pobierz raport jako PDF",
         pdf_done_title: "✅ PDF wygenerowany",
         pdf_done_msg: "Twój raport został pomyślnie pobrany.",
-        btn_open_pdf: "📂 Otwórz PDF",
-        btn_finalize: "✅ Zakończ",
+        btn_open_pdf: "Otwórz PDF",
+        btn_finalize: "Zakończ",
         r_measurements: "Wymiary ciała", r_body_comp: "Skład ciała (US Navy)",
         r_imc_ffmi: "BMI i FFMI", r_macros: "Dzienne makroskładniki",
         r_body_fat: "Tkanka tłuszczowa", r_lean_mass: "Masa beztłuszczowa",
@@ -1871,8 +1871,8 @@
         btn_pdf: "📄 Скачать отчёт в PDF",
         pdf_done_title: "✅ PDF создан",
         pdf_done_msg: "Ваш отчёт успешно скачан.",
-        btn_open_pdf: "📂 Открыть PDF",
-        btn_finalize: "✅ Завершить",
+        btn_open_pdf: "Открыть PDF",
+        btn_finalize: "Завершить",
         r_measurements: "Антропометрия", r_body_comp: "Состав тела (US Navy)",
         r_imc_ffmi: "ИМТ и FFMI", r_macros: "Макросы дня",
         r_body_fat: "Жировая масса", r_lean_mass: "Безжировая масса",
@@ -1926,8 +1926,8 @@
         btn_pdf: "📄 下载PDF报告",
         pdf_done_title: "✅ PDF已生成",
         pdf_done_msg: "您的报告已成功下载。",
-        btn_open_pdf: "📂 打开PDF",
-        btn_finalize: "✅ 完成",
+        btn_open_pdf: "打开PDF",
+        btn_finalize: "完成",
         r_measurements: "身体测量", r_body_comp: "身体成分（美国海军法）",
         r_imc_ffmi: "BMI 和 FFMI", r_macros: "每日宏量营养素",
         r_body_fat: "体脂", r_lean_mass: "瘦体重",
@@ -1981,8 +1981,8 @@
         btn_pdf: "📄 PDFレポートをダウンロード",
         pdf_done_title: "✅ PDF生成完了",
         pdf_done_msg: "レポートが正常にダウンロードされました。",
-        btn_open_pdf: "📂 PDFを開く",
-        btn_finalize: "✅ 完了",
+        btn_open_pdf: "PDFを開く",
+        btn_finalize: "完了",
         r_measurements: "身体測定値", r_body_comp: "体組成（米海軍法）",
         r_imc_ffmi: "BMI と FFMI", r_macros: "1日のマクロ",
         r_body_fat: "体脂肪", r_lean_mass: "除脂肪体重",
@@ -2697,7 +2697,10 @@
     };
 
     window.openPdf = function () {
-      if (_pdfBlobUrl) { window.open(_pdfBlobUrl, '_blank'); }
+      if (_pdfBlobUrl) {
+        window.open(_pdfBlobUrl, '_blank');
+        closePdfModal();
+      }
     };
 
     /* Expose buildResultsHTML so we can embed the data JSON for PDF */
