@@ -23,5 +23,8 @@
       "android",
       "ios"
     ]
+  },
+  "dependencies": {
+    "puppeteer": "^24.42.0"
   }
 }
